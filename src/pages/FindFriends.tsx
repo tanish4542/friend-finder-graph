@@ -8,6 +8,7 @@ import { Search, Users, BarChart } from 'lucide-react';
 import { toast } from 'sonner';
 import { useUser } from '@/context/UserContext';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Badge } from '@/components/ui/badge';
 import { 
   Select, 
   SelectContent, 

@@ -1,3 +1,4 @@
+
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import {
@@ -7,7 +8,9 @@ import {
   AccordionTrigger,
 } from '@/components/ui/accordion';
 import { Card, CardContent } from '@/components/ui/card';
-import { BarChart, ArrowRight } from 'lucide-react';
+import { BarChart, ArrowRight, BookOpen } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 const About = () => {
   return (
@@ -24,16 +27,23 @@ const About = () => {
               <h2 className="text-xl font-medium mb-4">What is Breadth-First Search (BFS)?</h2>
               
               <p className="mb-4">
-                Breadth-First Search is a graph traversal algorithm that explores all neighbors at the current depth before moving on to nodes at the next depth level.
+                Breadth-First Search is a graph traversal algorithm that explores all vertices at the current depth before moving on to vertices at the next depth level. It's like exploring a maze by checking all possible paths one step at a time.
               </p>
               
               <div className="bg-social-light p-4 rounded-lg mb-4">
                 <h3 className="font-medium mb-2">BFS Algorithm Steps:</h3>
                 <ol className="list-decimal list-inside space-y-2">
                   <li>Start with a root node and mark it as visited</li>
-                  <li>Explore all neighbors of the current node</li>
-                  <li>For each neighbor, if it hasn't been visited, mark it as visited and add it to the queue</li>
-                  <li>Move to the next node in the queue and repeat until the queue is empty</li>
+                  <li>Add the root node to a queue</li>
+                  <li>While the queue is not empty:
+                    <ul className="list-disc list-inside ml-6 mt-1">
+                      <li>Remove the first node from the queue</li>
+                      <li>Process this node (e.g., check if it's the target)</li>
+                      <li>Add all unvisited neighbors of this node to the queue</li>
+                      <li>Mark all these neighbors as visited</li>
+                    </ul>
+                  </li>
+                  <li>Repeat until the queue is empty or the target is found</li>
                 </ol>
               </div>
               
@@ -106,6 +116,27 @@ const About = () => {
               </div>
             </CardContent>
           </Card>
+
+          <Card className="mb-8">
+            <CardContent className="pt-6">
+              <h2 className="text-xl font-medium mb-4">Why Use BFS?</h2>
+              
+              <p className="mb-4">
+                BFS is particularly useful for finding the shortest path between nodes in an unweighted graph. Some key advantages:
+              </p>
+              
+              <ul className="list-disc list-inside space-y-2 mb-4">
+                <li>Guarantees the shortest path in unweighted graphs</li>
+                <li>Level-by-level exploration makes it perfect for social networks</li>
+                <li>Can identify all nodes at a given "distance" from the starting point</li>
+                <li>Simple implementation using a queue data structure</li>
+              </ul>
+              
+              <p>
+                In social networks, this helps us find friends who are directly connected (level 1), friends of friends (level 2), and so on.
+              </p>
+            </CardContent>
+          </Card>
         </section>
         
         <section className="mb-12">
@@ -138,27 +169,43 @@ const About = () => {
             </div>
           </div>
           
-          <Accordion type="single" collapsible className="mb-6">
-            <AccordionItem value="algorithm">
-              <AccordionTrigger>BFS Algorithm in JavaScript</AccordionTrigger>
-              <AccordionContent>
-                <pre className="bg-gray-50 p-4 rounded-lg overflow-x-auto">
-{`function bfs(graph, startNode) {
+          <Card className="mb-6">
+            <CardContent className="pt-6">
+              <Tabs defaultValue="bfs" className="w-full">
+                <TabsList className="mb-4">
+                  <TabsTrigger value="bfs">BFS Algorithm</TabsTrigger>
+                  <TabsTrigger value="dfs">BFS vs DFS</TabsTrigger>
+                </TabsList>
+                <TabsContent value="bfs">
+                  <h3 className="font-medium mb-2">BFS Algorithm in JavaScript</h3>
+                  <ScrollArea className="h-[400px] w-full rounded-md border p-4 bg-gray-900 text-gray-100 font-mono text-sm">
+                    <pre className="text-left">
+{`// Breadth-First Search implementation in JavaScript
+function bfs(graph, startNode) {
   // Queue to track nodes to visit
   const queue = [startNode];
+  
   // Set to track visited nodes
   const visited = new Set([startNode]);
+  
   // Track connection level
   const level = { [startNode]: 0 };
+  
+  // Track paths (optional)
+  const parent = { [startNode]: null };
   
   // While we have nodes to visit
   while (queue.length > 0) {
     const currentNode = queue.shift();
     const currentLevel = level[currentNode];
     
+    // Process the current node
+    console.log(\`Visiting node \${currentNode} at level \${currentLevel}\`);
+    
     // Get neighbors of current node
     const neighbors = graph[currentNode] || [];
     
+    // Explore all neighbors
     for (const neighbor of neighbors) {
       if (!visited.has(neighbor)) {
         // Mark as visited and enqueue
@@ -167,16 +214,80 @@ const About = () => {
         
         // Track connection level
         level[neighbor] = currentLevel + 1;
+        
+        // Track path
+        parent[neighbor] = currentNode;
       }
     }
   }
   
-  return level;
-}`}
-                </pre>
-              </AccordionContent>
-            </AccordionItem>
-          </Accordion>
+  return {
+    levels: level,   // Distance of each node from start
+    paths: parent    // Can be used to reconstruct paths
+  };
+}
+
+// Example usage:
+const socialNetwork = {
+  'Alice': ['Bob', 'Charlie', 'David'],
+  'Bob': ['Alice', 'Eva', 'Frank'],
+  'Charlie': ['Alice', 'Gina'],
+  'David': ['Alice', 'Helen'],
+  'Eva': ['Bob', 'Ivan'],
+  'Frank': ['Bob'],
+  'Gina': ['Charlie'],
+  'Helen': ['David'],
+  'Ivan': ['Eva'],
+};
+
+const result = bfs(socialNetwork, 'Alice');
+console.log('Connection levels:', result.levels);
+
+// Find all friends at level 2 (friends of friends)
+const friendsOfFriends = Object.entries(result.levels)
+  .filter(([person, level]) => level === 2)
+  .map(([person]) => person);
+
+console.log('Friends of friends:', friendsOfFriends);`}
+                    </pre>
+                  </ScrollArea>
+                </TabsContent>
+                <TabsContent value="dfs">
+                  <h3 className="font-medium mb-2">BFS vs DFS Comparison</h3>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <h4 className="font-medium mb-2">Breadth-First Search (BFS)</h4>
+                      <ul className="list-disc list-inside space-y-1 text-sm">
+                        <li>Uses a queue (FIFO)</li>
+                        <li>Explores level by level</li>
+                        <li>Finds shortest paths</li>
+                        <li>Better for finding nearby nodes</li>
+                        <li>Uses more memory (stores all nodes at current level)</li>
+                      </ul>
+                    </div>
+                    <div>
+                      <h4 className="font-medium mb-2">Depth-First Search (DFS)</h4>
+                      <ul className="list-disc list-inside space-y-1 text-sm">
+                        <li>Uses a stack (LIFO)</li>
+                        <li>Explores as far as possible along a branch</li>
+                        <li>Doesn't guarantee shortest path</li>
+                        <li>Better for maze solving and exhaustive searches</li>
+                        <li>Uses less memory (stores only the current path)</li>
+                      </ul>
+                    </div>
+                  </div>
+                  <div className="mt-4">
+                    <p className="text-sm text-muted-foreground">
+                      <strong>When to use BFS:</strong> Finding shortest paths, level-ordered traversal, finding nodes closest to starting point
+                    </p>
+                    <p className="text-sm text-muted-foreground mt-2">
+                      <strong>When to use DFS:</strong> Exploring all possible paths, maze solving, detecting cycles
+                    </p>
+                  </div>
+                </TabsContent>
+              </Tabs>
+            </CardContent>
+          </Card>
         </section>
         
         <section className="mb-12">
@@ -228,9 +339,10 @@ const About = () => {
           </p>
           
           <div className="flex flex-wrap justify-center gap-4">
-            <Link to="/find-friends">
+            <Link to="/">
               <Button size="lg" className="bg-social-primary hover:bg-social-tertiary">
-                Find Friends
+                <BookOpen className="mr-2 h-4 w-4" />
+                Get Started
               </Button>
             </Link>
             <Link to="/graph">

@@ -1,18 +1,13 @@
 
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
 import { User, FriendSuggestion } from '@/utils/bfs';
 import { api } from '@/services/api';
 import FriendCard from '@/components/FriendCard';
-import ConnectionPath from '@/components/ConnectionPath';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import EmptyState from '@/components/EmptyState';
-import UserSearchInput from '@/components/UserSearchInput';
-import { Card, CardContent } from '@/components/ui/card';
-import { UserPlus, Users, Filter } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
-import HelpTooltip from '@/components/HelpTooltip';
+import { UserPlus, Filter, Info } from 'lucide-react';
 import { useUser } from '@/context/UserContext';
+import { Card, CardContent } from '@/components/ui/card';
 import { 
   Select, 
   SelectContent, 
@@ -20,17 +15,23 @@ import {
   SelectTrigger, 
   SelectValue 
 } from "@/components/ui/select";
-import { Slider } from "@/components/ui/slider";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
+import { Slider } from '@/components/ui/slider';
+import UserSearchInput from '@/components/UserSearchInput';
 
 const SuggestedFriends = () => {
-  const { currentUser, refreshUserData } = useUser();
+  const { currentUser, isLoading: isUserLoading, refreshUserData } = useUser();
   
-  const [loading, setLoading] = useState(true);
-  const [allSuggestions, setAllSuggestions] = useState<FriendSuggestion[]>([]);
+  const [suggestions, setSuggestions] = useState<FriendSuggestion[]>([]);
   const [filteredSuggestions, setFilteredSuggestions] = useState<FriendSuggestion[]>([]);
-  const [selectedConnection, setSelectedConnection] = useState<FriendSuggestion | null>(null);
+  const [loading, setLoading] = useState(true);
   
-  // Filter settings
+  // Filters
   const [maxDepth, setMaxDepth] = useState<number>(3);
   const [minMutualFriends, setMinMutualFriends] = useState<number>(0);
   
@@ -40,11 +41,11 @@ const SuggestedFriends = () => {
       
       setLoading(true);
       try {
-        const suggestionsData = await api.getFriendSuggestions(currentUser.id, 3, 0);
-        setAllSuggestions(suggestionsData);
-        applyFilters(suggestionsData, maxDepth, minMutualFriends);
+        // Get all friend suggestions with a high max depth to get all possible suggestions
+        const suggestionsData = await api.getFriendSuggestions(currentUser.id, 5);
+        setSuggestions(suggestionsData);
       } catch (error) {
-        console.error('Error fetching data:', error);
+        console.error('Error fetching friend suggestions:', error);
       } finally {
         setLoading(false);
       }
@@ -55,68 +56,41 @@ const SuggestedFriends = () => {
     }
   }, [currentUser]);
   
-  const applyFilters = (suggestions: FriendSuggestion[], depth: number, mutual: number) => {
-    const filtered = suggestions.filter(s => 
-      s.connectionLevel <= depth && 
-      s.mutualFriends.length >= mutual
-    );
-    
-    setFilteredSuggestions(filtered);
-    
-    if (filtered.length > 0) {
-      // If current selection no longer matches filter, reset selection
-      if (!selectedConnection || !filtered.some(s => s.user.id === selectedConnection.user.id)) {
-        setSelectedConnection(filtered[0]);
-      }
-    } else {
-      setSelectedConnection(null);
+  // Apply filters whenever filters or suggestions change
+  useEffect(() => {
+    if (suggestions.length) {
+      const filtered = suggestions.filter(suggestion => 
+        suggestion.connectionLevel <= maxDepth && 
+        suggestion.mutualFriends.length >= minMutualFriends
+      );
+      
+      setFilteredSuggestions(filtered);
     }
-  };
+  }, [suggestions, maxDepth, minMutualFriends]);
   
-  const handleDepthChange = (value: string) => {
-    const depth = parseInt(value, 10);
-    setMaxDepth(depth);
-    applyFilters(allSuggestions, depth, minMutualFriends);
+  const handleIgnore = (userId: number) => {
+    // Remove from suggestions
+    setSuggestions(suggestions.filter(s => s.user.id !== userId));
   };
-  
-  const handleMutualFriendsChange = (value: number[]) => {
-    const mutual = value[0];
-    setMinMutualFriends(mutual);
-    applyFilters(allSuggestions, maxDepth, mutual);
+
+  const handleAddFriend = (userId: number) => {
+    // Remove from suggestions
+    setSuggestions(suggestions.filter(s => s.user.id !== userId));
   };
-  
+
   const handleSelectUser = (selectedUser: User) => {
     refreshUserData(selectedUser.id);
   };
   
-  const handleRemoveSuggestion = (suggestionId: number) => {
-    const updatedSuggestions = allSuggestions.filter(s => s.user.id !== suggestionId);
-    setAllSuggestions(updatedSuggestions);
-    applyFilters(updatedSuggestions, maxDepth, minMutualFriends);
-    
-    if (selectedConnection && selectedConnection.user.id === suggestionId) {
-      if (filteredSuggestions.length > 1) {
-        const nextSuggestion = filteredSuggestions.find(s => s.user.id !== suggestionId);
-        setSelectedConnection(nextSuggestion || null);
-      } else {
-        setSelectedConnection(null);
-      }
-    }
-  };
-  
-  const handleSelectConnection = (suggestion: FriendSuggestion) => {
-    setSelectedConnection(suggestion);
-  };
-  
-  if (loading) {
-    return <LoadingSpinner message="Finding suggested friends..." />;
+  if (isUserLoading || loading) {
+    return <LoadingSpinner message="Loading suggested friends..." />;
   }
   
   if (!currentUser) {
     return (
       <div className="container mx-auto py-10 px-4">
         <EmptyState
-          icon={<Users size={32} />}
+          icon={<UserPlus size={32} />}
           title="No user selected"
           description="Please select a user to view their suggested friends"
           action={{
@@ -135,8 +109,7 @@ const SuggestedFriends = () => {
           <div>
             <h1 className="text-3xl font-bold mb-1 gradient-text">Suggested Friends</h1>
             <p className="text-muted-foreground">
-              Potential connections based on BFS algorithm 
-              <HelpTooltip text="These suggestions are found using the Breadth-First Search algorithm to explore the user's extended network." />
+              Discover potential connections using BFS algorithm 
             </p>
           </div>
           
@@ -145,143 +118,130 @@ const SuggestedFriends = () => {
           </div>
         </div>
         
-        <Card className="mb-6 glass-card">
-          <CardContent className="pt-6">
-            <div className="flex flex-col md:flex-row justify-between gap-4">
-              <div>
-                <h2 className="text-xl font-medium mb-2 gradient-text">Selected User</h2>
-                <div className="flex justify-between items-center">
-                  <div>
-                    <p className="text-accent-foreground">
-                      {currentUser.name} (@{currentUser.username})
-                    </p>
-                    <p className="text-sm text-muted-foreground mt-1">
-                      {filteredSuggestions.length} suggested connection{filteredSuggestions.length !== 1 ? 's' : ''}
-                    </p>
-                  </div>
-                  <Link to={`/my-friends`}>
-                    <Badge variant="outline" className="cursor-pointer hover:bg-accent/30">
-                      View Direct Friends
-                    </Badge>
-                  </Link>
-                </div>
-              </div>
-              
-              <div className="flex flex-col md:flex-row gap-4 md:items-end">
-                <div className="space-y-2">
-                  <div className="flex items-center gap-2">
-                    <Filter size={16} className="text-muted-foreground" />
-                    <p className="text-sm text-muted-foreground">Max Connection Level</p>
-                  </div>
-                  <Select defaultValue="3" onValueChange={handleDepthChange}>
-                    <SelectTrigger className="w-32">
-                      <SelectValue placeholder="Max Level" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="2">Level 2</SelectItem>
-                      <SelectItem value="3">Level 3</SelectItem>
-                      <SelectItem value="4">Level 4</SelectItem>
-                    </SelectContent>
-                  </Select>
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-8">
+          <div className="lg:col-span-1">
+            <Card className="glass-card sticky top-24">
+              <CardContent className="pt-6">
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="text-xl font-medium gradient-text">Filters</h2>
+                  <Filter size={18} />
                 </div>
                 
-                <div className="space-y-2 md:pl-4 md:border-l border-border/30">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <Users size={16} className="text-muted-foreground" />
-                      <p className="text-sm text-muted-foreground">Min Mutual Friends</p>
+                <div className="space-y-6">
+                  <div>
+                    <div className="flex items-center justify-between mb-2">
+                      <label className="text-sm font-medium flex items-center gap-1">
+                        Max BFS Depth
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Info size={14} className="text-muted-foreground" />
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p className="w-[200px] text-xs">
+                                Level 1: Direct friends<br />
+                                Level 2: Friends of friends<br />
+                                Level 3+: Extended network
+                              </p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      </label>
+                      <span className="text-sm bg-accent/50 px-2 py-0.5 rounded">
+                        Level {maxDepth}
+                      </span>
                     </div>
-                    <span className="text-sm font-medium">{minMutualFriends}</span>
+                    <Select 
+                      value={maxDepth.toString()} 
+                      onValueChange={(value) => setMaxDepth(parseInt(value))}
+                    >
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Select maximum depth" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="2">Level 2 (Friends of friends)</SelectItem>
+                        <SelectItem value="3">Level 3</SelectItem>
+                        <SelectItem value="4">Level 4</SelectItem>
+                        <SelectItem value="5">Level 5+</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
-                  <div className="w-32 px-1">
+                  
+                  <div>
+                    <div className="flex items-center justify-between mb-2">
+                      <label className="text-sm font-medium flex items-center gap-1">
+                        Min Mutual Friends
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Info size={14} className="text-muted-foreground" />
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p className="w-[200px] text-xs">
+                                Filter by minimum number of mutual connections
+                              </p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      </label>
+                      <span className="text-sm bg-accent/50 px-2 py-0.5 rounded">
+                        {minMutualFriends}+
+                      </span>
+                    </div>
                     <Slider 
-                      defaultValue={[0]} 
-                      max={5}
+                      value={[minMutualFriends]} 
+                      min={0}
+                      max={10}
                       step={1}
-                      onValueChange={handleMutualFriendsChange}
+                      onValueChange={(values) => setMinMutualFriends(values[0])}
+                      className="my-4"
                     />
+                  </div>
+                  
+                  <div className="pt-2 border-t border-border/30">
+                    <p className="text-sm text-muted-foreground">
+                      Showing {filteredSuggestions.length} of {suggestions.length} suggestions
+                    </p>
                   </div>
                 </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        
-        {filteredSuggestions.length > 0 ? (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div className="lg:col-span-2">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              </CardContent>
+            </Card>
+          </div>
+          
+          <div className="lg:col-span-3">
+            {filteredSuggestions.length > 0 ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
                 {filteredSuggestions.map(suggestion => (
-                  <div 
+                  <FriendCard
                     key={suggestion.user.id}
-                    onClick={() => handleSelectConnection(suggestion)} 
-                    className={`cursor-pointer transition-all ${selectedConnection?.user.id === suggestion.user.id ? 'ring-2 ring-social-primary rounded-lg' : ''}`}
-                  >
-                    <FriendCard
-                      user={suggestion.user}
-                      isFriend={false}
-                      mutualFriends={suggestion.mutualFriends}
-                      connectionLevel={suggestion.connectionLevel}
-                      onAddFriend={handleRemoveSuggestion}
-                      onIgnore={handleRemoveSuggestion}
-                    />
-                  </div>
+                    user={suggestion.user}
+                    connectionLevel={suggestion.connectionLevel}
+                    mutualFriends={suggestion.mutualFriends}
+                    onAddFriend={handleAddFriend}
+                    onIgnore={handleIgnore}
+                  />
                 ))}
               </div>
-            </div>
-            
-            <div className="lg:col-span-1">
-              {selectedConnection && (
-                <div className="sticky top-24">
-                  <Card className="glass-card">
-                    <CardContent className="pt-6">
-                      <h3 className="text-lg font-medium mb-3 gradient-text">Connection Details</h3>
-                      
-                      <div className="mb-4">
-                        <p className="text-sm text-muted-foreground mb-2">Connection path:</p>
-                        <ConnectionPath path={selectedConnection.connectionPath} />
-                      </div>
-                      
-                      <div className="mb-4">
-                        <p className="text-sm text-muted-foreground mb-1">Connection level:</p>
-                        <Badge className="bg-social-primary">Level {selectedConnection.connectionLevel}</Badge>
-                      </div>
-                      
-                      <div>
-                        <p className="text-sm text-muted-foreground mb-1">Mutual friends:</p>
-                        <p>{selectedConnection.mutualFriends.length} mutual connection(s)</p>
-                        
-                        {selectedConnection.mutualFriends.length > 0 && (
-                          <ul className="mt-2 space-y-1">
-                            {selectedConnection.mutualFriends.map(friend => (
-                              <li key={friend.id} className="text-sm">
-                                • {friend.name}
-                              </li>
-                            ))}
-                          </ul>
-                        )}
-                      </div>
-                    </CardContent>
-                  </Card>
-                </div>
-              )}
-            </div>
+            ) : (
+              <EmptyState
+                icon={<UserPlus size={32} />}
+                title="No suggested friends"
+                description={
+                  suggestions.length > 0 
+                    ? "Try adjusting your filters to see more suggestions." 
+                    : "No friend suggestions found for this user."
+                }
+                action={{
+                  label: "Adjust Filters",
+                  onClick: () => {
+                    setMaxDepth(5);
+                    setMinMutualFriends(0);
+                  }
+                }}
+              />
+            )}
           </div>
-        ) : (
-          <EmptyState
-            icon={<UserPlus size={32} />}
-            title="No suggestions found"
-            description="We couldn't find any friend suggestions matching your filters."
-            action={{
-              label: "Reset Filters",
-              onClick: () => {
-                setMaxDepth(3);
-                setMinMutualFriends(0);
-                applyFilters(allSuggestions, 3, 0);
-              }
-            }}
-          />
-        )}
+        </div>
       </div>
     </div>
   );
