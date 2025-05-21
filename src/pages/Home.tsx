@@ -1,3 +1,4 @@
+
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { BarChart, Users, Search, Info } from 'lucide-react';
@@ -79,7 +80,7 @@ const Home = () => {
           <div className="flex flex-col-reverse md:flex-row items-center gap-8 mb-12">
             <div className="md:w-1/2 bg-purple-100 rounded-lg p-4">
               <div className="h-32 flex items-center justify-center">
-                <Graph size={48} className="text-purple-500" />
+                <BarChart size={48} className="text-purple-500" />
               </div>
             </div>
             <div className="md:w-1/2">
