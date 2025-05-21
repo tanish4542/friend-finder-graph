@@ -11,13 +11,11 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip';
 import { UserPlus, X, Check, User as UserIcon } from 'lucide-react';
-import { toast } from 'sonner';
 import { useState } from 'react';
-import { api } from '@/services/api';
+import { useUser } from '@/context/UserContext';
 
 interface FriendCardProps {
   user: User;
-  currentUserId: number;
   isFriend?: boolean;
   connectionLevel?: number;
   mutualFriends?: User[];
@@ -27,7 +25,6 @@ interface FriendCardProps {
 
 const FriendCard = ({ 
   user, 
-  currentUserId,
   isFriend = false, 
   connectionLevel = 1,
   mutualFriends = [],
@@ -35,28 +32,31 @@ const FriendCard = ({
   onIgnore
 }: FriendCardProps) => {
   const [isLoading, setIsLoading] = useState(false);
+  const { currentUser, addFriend, removeFriend } = useUser();
   
   const handleAddFriend = async () => {
+    if (!currentUser) return;
+    
     setIsLoading(true);
     try {
-      await api.addFriend(currentUserId, user.id);
-      toast.success(`Added ${user.name} as a friend!`);
-      if (onAddFriend) onAddFriend(user.id);
-    } catch (error) {
-      toast.error("Failed to add friend");
+      const success = await addFriend(currentUser.id, user.id);
+      if (success && onAddFriend) {
+        onAddFriend(user.id);
+      }
     } finally {
       setIsLoading(false);
     }
   };
   
-  const handleIgnore = async () => {
+  const handleRemoveFriend = async () => {
+    if (!currentUser) return;
+    
     setIsLoading(true);
     try {
-      await api.ignoreFriend(currentUserId, user.id);
-      toast.info(`Ignored suggestion for ${user.name}`);
-      if (onIgnore) onIgnore(user.id);
-    } catch (error) {
-      toast.error("Failed to ignore suggestion");
+      const success = await removeFriend(currentUser.id, user.id);
+      if (success && onIgnore) {
+        onIgnore(user.id);
+      }
     } finally {
       setIsLoading(false);
     }
@@ -70,7 +70,7 @@ const FriendCard = ({
     .toUpperCase();
 
   return (
-    <Card className="w-full transition-all hover:shadow-md">
+    <Card className="w-full transition-all hover:shadow-md glass-card">
       <CardHeader className="pb-2">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3">
@@ -108,7 +108,7 @@ const FriendCard = ({
                 <TooltipProvider key={friend.id}>
                   <Tooltip>
                     <TooltipTrigger asChild>
-                      <Avatar className="h-6 w-6 border-2 border-white">
+                      <Avatar className="h-6 w-6 border-2 border-background">
                         <AvatarImage src={friend.avatar} alt={friend.name} />
                         <AvatarFallback className="bg-social-tertiary text-white text-xs">
                           {friend.name.charAt(0)}
@@ -123,7 +123,7 @@ const FriendCard = ({
               ))}
               
               {mutualFriends.length > 3 && (
-                <div className="h-6 w-6 rounded-full bg-social-light text-social-tertiary text-xs flex items-center justify-center border-2 border-white">
+                <div className="h-6 w-6 rounded-full bg-accent text-accent-foreground text-xs flex items-center justify-center border-2 border-background">
                   +{mutualFriends.length - 3}
                 </div>
               )}
@@ -132,11 +132,13 @@ const FriendCard = ({
         )}
       </CardContent>
       
-      <CardFooter className="border-t pt-3">
+      <CardFooter className="border-t border-border/30 pt-3">
         {isFriend ? (
           <Button 
             variant="outline" 
-            className="w-full bg-social-light text-social-tertiary border-none"
+            className="w-full bg-accent/50 text-accent-foreground border-none"
+            onClick={handleRemoveFriend}
+            disabled={isLoading}
           >
             <Check className="mr-2 h-4 w-4" />
             Already Friends
@@ -154,7 +156,7 @@ const FriendCard = ({
             <Button 
               variant="outline" 
               className="flex-1" 
-              onClick={handleIgnore}
+              onClick={handleRemoveFriend}
               disabled={isLoading}
             >
               <X className="mr-2 h-4 w-4" />

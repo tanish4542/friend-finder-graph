@@ -1,6 +1,5 @@
 
 import { useState, useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
 import { User } from '@/utils/bfs';
 import { api } from '@/services/api';
 import FriendCard from '@/components/FriendCard';
@@ -10,45 +9,62 @@ import UserSearchInput from '@/components/UserSearchInput';
 import { Users } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import HelpTooltip from '@/components/HelpTooltip';
+import { useUser } from '@/context/UserContext';
 
 const MyFriends = () => {
-  const [searchParams, setSearchParams] = useSearchParams();
-  const userId = Number(searchParams.get('userId')) || 1;
+  const { currentUser, isLoading: isUserLoading, refreshUserData } = useUser();
   
   const [loading, setLoading] = useState(true);
-  const [user, setUser] = useState<User | null>(null);
   const [friends, setFriends] = useState<User[]>([]);
   
   useEffect(() => {
     const fetchData = async () => {
+      if (!currentUser) return;
+      
       setLoading(true);
       try {
-        const userData = await api.getUser(userId);
-        const friendsData = await api.getUserFriends(userId);
-        
-        setUser(userData || null);
+        const friendsData = await api.getUserFriends(currentUser.id);
         setFriends(friendsData);
       } catch (error) {
-        console.error('Error fetching data:', error);
+        console.error('Error fetching friends data:', error);
       } finally {
         setLoading(false);
       }
     };
     
-    fetchData();
-  }, [userId]);
+    if (currentUser) {
+      fetchData();
+    }
+  }, [currentUser]);
   
   const handleSelectUser = (selectedUser: User) => {
-    setSearchParams({ userId: selectedUser.id.toString() });
+    refreshUserData(selectedUser.id);
   };
   
   const handleRemoveFriend = (friendId: number) => {
-    // In a real app, this would update the database
+    // This will be handled by the FriendCard through the UserContext
+    // Just update the local state for immediate UI feedback
     setFriends(friends.filter(friend => friend.id !== friendId));
   };
   
-  if (loading) {
+  if (isUserLoading || loading) {
     return <LoadingSpinner message="Loading friends..." />;
+  }
+  
+  if (!currentUser) {
+    return (
+      <div className="container mx-auto py-10 px-4">
+        <EmptyState
+          icon={<Users size={32} />}
+          title="No user selected"
+          description="Please select a user to view their friends"
+          action={{
+            label: "Find Friends",
+            onClick: () => window.location.href = "/find-friends"
+          }}
+        />
+      </div>
+    );
   }
   
   return (
@@ -56,7 +72,7 @@ const MyFriends = () => {
       <div className="max-w-6xl mx-auto">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
           <div>
-            <h1 className="text-3xl font-bold mb-1">My Friends</h1>
+            <h1 className="text-3xl font-bold mb-1 gradient-text">My Friends</h1>
             <p className="text-muted-foreground">
               Direct connections (Level 1) 
               <HelpTooltip text="Level 1 connections are users directly connected to the selected user." />
@@ -68,12 +84,12 @@ const MyFriends = () => {
           </div>
         </div>
         
-        {user && (
-          <Card className="mb-6">
+        {currentUser && (
+          <Card className="mb-6 glass-card">
             <CardContent className="pt-6">
-              <h2 className="text-xl font-medium mb-2">Selected User</h2>
-              <p className="text-social-tertiary">
-                {user.name} (@{user.username})
+              <h2 className="text-xl font-medium mb-2 gradient-text">Selected User</h2>
+              <p className="text-accent-foreground">
+                {currentUser.name} (@{currentUser.username})
               </p>
               <p className="text-sm text-muted-foreground mt-1">
                 {friends.length} direct connection{friends.length !== 1 ? 's' : ''}
@@ -88,7 +104,6 @@ const MyFriends = () => {
               <FriendCard
                 key={friend.id}
                 user={friend}
-                currentUserId={userId}
                 isFriend={true}
                 connectionLevel={1}
                 onIgnore={handleRemoveFriend}
@@ -100,6 +115,10 @@ const MyFriends = () => {
             icon={<Users size={32} />}
             title="No friends yet"
             description="This user doesn't have any direct connections yet."
+            action={{
+              label: "Find Friends",
+              onClick: () => window.location.href = "/find-friends"
+            }}
           />
         )}
       </div>

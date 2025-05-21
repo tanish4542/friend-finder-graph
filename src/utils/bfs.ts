@@ -24,32 +24,32 @@ export const getAllUsers = (): User[] => {
 };
 
 // Get user by ID
-export const getUserById = (id: number): User | undefined => {
-  return usersData.users.find(user => user.id === id);
+export const getUserById = (id: number, users: User[] = usersData.users): User | undefined => {
+  return users.find(user => user.id === id);
 };
 
 // Get user by username
-export const getUserByUsername = (username: string): User | undefined => {
-  return usersData.users.find(user => user.username === username);
+export const getUserByUsername = (username: string, users: User[] = usersData.users): User | undefined => {
+  return users.find(user => user.username === username);
 };
 
 // Get direct friends (level 1)
-export const getDirectFriends = (userId: number): User[] => {
-  const user = getUserById(userId);
+export const getDirectFriends = (userId: number, users: User[] = usersData.users): User[] => {
+  const user = getUserById(userId, users);
   
   if (!user) return [];
   
   return user.friends.map(friendId => {
-    const friend = getUserById(friendId);
+    const friend = getUserById(friendId, users);
     return friend as User;
-  });
+  }).filter(Boolean);
 };
 
 // Get connection path between two users
-export const findConnectionPath = (startUserId: number, endUserId: number): User[] => {
+export const findConnectionPath = (startUserId: number, endUserId: number, users: User[] = usersData.users): User[] => {
   // If same user, return just that user
   if (startUserId === endUserId) {
-    const user = getUserById(startUserId);
+    const user = getUserById(startUserId, users);
     return user ? [user] : [];
   }
   
@@ -57,7 +57,7 @@ export const findConnectionPath = (startUserId: number, endUserId: number): User
   const visited = new Set<number>();
   const queue: { id: number; path: User[] }[] = [];
   
-  const startUser = getUserById(startUserId);
+  const startUser = getUserById(startUserId, users);
   if (!startUser) return [];
   
   queue.push({ id: startUserId, path: [startUser] });
@@ -66,12 +66,12 @@ export const findConnectionPath = (startUserId: number, endUserId: number): User
   while (queue.length > 0) {
     const { id, path } = queue.shift()!;
     
-    const user = getUserById(id);
+    const user = getUserById(id, users);
     if (!user) continue;
     
     for (const friendId of user.friends) {
       if (friendId === endUserId) {
-        const endUser = getUserById(endUserId);
+        const endUser = getUserById(endUserId, users);
         if (endUser) {
           return [...path, endUser];
         }
@@ -79,7 +79,7 @@ export const findConnectionPath = (startUserId: number, endUserId: number): User
       
       if (!visited.has(friendId)) {
         visited.add(friendId);
-        const friend = getUserById(friendId);
+        const friend = getUserById(friendId, users);
         if (friend) {
           queue.push({ id: friendId, path: [...path, friend] });
         }
@@ -91,19 +91,23 @@ export const findConnectionPath = (startUserId: number, endUserId: number): User
 };
 
 // Find mutual friends between two users
-export const findMutualFriends = (user1Id: number, user2Id: number): User[] => {
-  const user1 = getUserById(user1Id);
-  const user2 = getUserById(user2Id);
+export const findMutualFriends = (user1Id: number, user2Id: number, users: User[] = usersData.users): User[] => {
+  const user1 = getUserById(user1Id, users);
+  const user2 = getUserById(user2Id, users);
   
   if (!user1 || !user2) return [];
   
   const mutualFriendIds = user1.friends.filter(id => user2.friends.includes(id));
-  return mutualFriendIds.map(id => getUserById(id)!);
+  return mutualFriendIds.map(id => getUserById(id, users)!).filter(Boolean);
 };
 
 // Get friend suggestions using BFS algorithm
-export const getFriendSuggestions = (userId: number, maxLevel = 2): FriendSuggestion[] => {
-  const user = getUserById(userId);
+export const getFriendSuggestions = (
+  userId: number, 
+  maxLevel = 2,
+  users: User[] = usersData.users
+): FriendSuggestion[] => {
+  const user = getUserById(userId, users);
   if (!user) return [];
   
   const visited = new Set<number>([userId]);
@@ -118,19 +122,19 @@ export const getFriendSuggestions = (userId: number, maxLevel = 2): FriendSugges
     
     if (level > maxLevel) continue;
     
-    const currentUser = getUserById(currentId);
+    const currentUser = getUserById(currentId, users);
     if (!currentUser) continue;
     
     for (const friendId of currentUser.friends) {
       if (!visited.has(friendId)) {
         visited.add(friendId);
         
-        const friend = getUserById(friendId);
+        const friend = getUserById(friendId, users);
         if (!friend) continue;
         
-        // Add to suggestions if level >= 2 (not direct friend)
+        // Add to suggestions if level >= 1 (not direct friend)
         if (level >= 1) {
-          const mutualFriends = findMutualFriends(userId, friendId);
+          const mutualFriends = findMutualFriends(userId, friendId, users);
           suggestions.push({
             user: friend,
             mutualFriends,

@@ -13,6 +13,8 @@ import {
 } from 'lucide-react';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
+import { useUser } from '@/context/UserContext';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 const NavItem = ({ to, icon: Icon, label, active }: { 
   to: string; 
@@ -26,7 +28,7 @@ const NavItem = ({ to, icon: Icon, label, active }: {
       "flex items-center gap-2 px-4 py-2 rounded-md transition-all",
       active 
         ? "bg-social-primary text-white font-medium" 
-        : "hover:bg-social-light hover:text-social-tertiary"
+        : "hover:bg-accent hover:text-accent-foreground"
     )}
   >
     <Icon size={18} />
@@ -37,6 +39,7 @@ const NavItem = ({ to, icon: Icon, label, active }: {
 const Navbar = () => {
   const location = useLocation();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { currentUser } = useUser();
   
   const navItems = [
     { to: "/", icon: Home, label: "Home" },
@@ -47,8 +50,13 @@ const Navbar = () => {
     { to: "/about", icon: Info, label: "About BFS" }
   ];
 
+  // Generate user initials for avatar fallback
+  const initials = currentUser?.name
+    ? currentUser.name.split(' ').map(n => n[0]).join('').toUpperCase()
+    : "?";
+
   return (
-    <header className="sticky top-0 z-50 bg-white border-b border-gray-100 shadow-sm">
+    <header className="sticky top-0 z-50 backdrop-blur-md bg-background/90 border-b border-border shadow-sm">
       <div className="container mx-auto px-4 py-3">
         <div className="flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2">
@@ -57,9 +65,22 @@ const Navbar = () => {
             </div>
             <div className="hidden md:block">
               <h1 className="text-xl font-bold gradient-text">FriendFinder</h1>
-              <p className="text-xs text-gray-500">BFS Social Network</p>
+              <p className="text-xs text-muted-foreground">BFS Social Network</p>
             </div>
           </Link>
+
+          {/* Current user indicator (desktop) */}
+          {currentUser && (
+            <div className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-full bg-accent/30">
+              <Avatar className="h-7 w-7">
+                <AvatarImage src={currentUser.avatar} alt={currentUser.name} />
+                <AvatarFallback className="bg-social-primary text-white text-xs">
+                  {initials}
+                </AvatarFallback>
+              </Avatar>
+              <span className="text-sm">{currentUser.name}</span>
+            </div>
+          )}
 
           {/* Mobile menu button */}
           <div className="md:hidden">
@@ -89,6 +110,17 @@ const Navbar = () => {
         {/* Mobile Navigation */}
         {isMenuOpen && (
           <nav className="md:hidden pt-4 pb-2 animate-fade-in">
+            {currentUser && (
+              <div className="flex items-center gap-2 mb-4 p-2 rounded-lg bg-accent/30">
+                <Avatar className="h-8 w-8">
+                  <AvatarImage src={currentUser.avatar} alt={currentUser.name} />
+                  <AvatarFallback className="bg-social-primary text-white">
+                    {initials}
+                  </AvatarFallback>
+                </Avatar>
+                <span>{currentUser.name}</span>
+              </div>
+            )}
             <div className="flex flex-col space-y-1">
               {navItems.map((item) => (
                 <NavItem
