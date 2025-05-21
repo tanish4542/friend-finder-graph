@@ -73,10 +73,10 @@ const GraphView = ({
     
     // Set up the simulation
     const simulation = d3.forceSimulation(nodes as any)
-      .force('link', d3.forceLink(links).id((d: any) => d.index).distance(120)) // Increased distance
-      .force('charge', d3.forceManyBody().strength(-180)) // Stronger repulsion
+      .force('link', d3.forceLink(links).id((d: any) => d.index).distance(150)) // Increased distance further
+      .force('charge', d3.forceManyBody().strength(-200)) // Stronger repulsion
       .force('center', d3.forceCenter(width / 2, height / 2))
-      .force('collision', d3.forceCollide().radius(40)); // Increased collision radius
+      .force('collision', d3.forceCollide().radius(60)); // Increased collision radius
     
     // Create a group for the links
     const link = svg.append('g')
@@ -108,54 +108,60 @@ const GraphView = ({
       switch(d.nodeType) {
         case 'self':
         case 'highlighted': 
-          return 14;
+          return 30; // Increased size for better visibility
         case 'direct-friend': 
-          return 12;
+          return 25; // Increased size
         default: 
-          return 10;
+          return 20; // Increased size
       }
     };
     
-    // Create group for node labels (background)
-    svg.append('g')
-      .selectAll('text')
+    // Create node containers (groups for node + label)
+    const nodeGroups = svg.append('g')
+      .selectAll('g')
       .data(nodes)
-      .join('text')
-      .attr('text-anchor', 'middle')
-      .attr('dy', (d: any) => getNodeRadius(d) + 18)
-      .attr('font-size', '10px')
-      .attr('fill', 'white')
-      .attr('stroke', 'rgba(0,0,0,0.5)')
-      .attr('stroke-width', 3)
-      .attr('paint-order', 'stroke')
-      .style('pointer-events', 'none')
-      .text((d: any) => d.name);
-    
-    // Create group for node labels (foreground text)
-    svg.append('g')
-      .selectAll('text')
-      .data(nodes)
-      .join('text')
-      .attr('text-anchor', 'middle')
-      .attr('dy', (d: any) => getNodeRadius(d) + 18)
-      .attr('font-size', '10px')
-      .attr('fill', 'white')
-      .style('pointer-events', 'none')
-      .text((d: any) => d.name);
-    
-    // Create a group for the nodes
-    const node = svg.append('g')
-      .attr('stroke', '#fff')
-      .attr('stroke-width', 1.5)
-      .selectAll('circle')
-      .data(nodes)
-      .join('circle')
-      .attr('r', getNodeRadius)
-      .attr('fill', getNodeColor)
+      .join('g')
+      .attr('class', 'node-group')
       .style('cursor', 'pointer')
       .on('click', (event, d: any) => {
         onSelectNode(d.id);
       });
+    
+    // Add circles to the node groups
+    nodeGroups.append('circle')
+      .attr('r', getNodeRadius)
+      .attr('fill', getNodeColor)
+      .attr('stroke', '#fff')
+      .attr('stroke-width', 1.5);
+    
+    // Add background for text labels
+    nodeGroups.append('rect')
+      .attr('rx', 5)
+      .attr('ry', 5)
+      .attr('fill', 'rgba(0,0,0,0.6)')
+      .attr('width', (d: any) => Math.max(d.name.length * 7, 60))
+      .attr('height', 18)
+      .attr('x', (d: any) => -(Math.max(d.name.length * 7, 60) / 2))
+      .attr('y', (d: any) => getNodeRadius(d) + 5);
+    
+    // Add text labels for nodes
+    nodeGroups.append('text')
+      .attr('text-anchor', 'middle')
+      .attr('dy', (d: any) => getNodeRadius(d) + 18)
+      .attr('font-size', '12px')
+      .attr('fill', 'white')
+      .attr('pointer-events', 'none')
+      .text((d: any) => d.name);
+    
+    // Add user initials inside nodes
+    nodeGroups.append('text')
+      .attr('text-anchor', 'middle')
+      .attr('alignment-baseline', 'central')
+      .attr('fill', 'white')
+      .attr('font-size', '12px')
+      .attr('font-weight', 'bold')
+      .attr('pointer-events', 'none')
+      .text((d: any) => d.name.split(' ').map((n: string) => n[0]).join(''));
     
     // Add tooltips (username on hover)
     const tooltip = svg.append('g')
@@ -178,7 +184,7 @@ const GraphView = ({
       .style('font-size', '12px')
       .style('pointer-events', 'none');
     
-    node.on('mouseover', (event, d: any) => {
+    nodeGroups.on('mouseover', (event, d: any) => {
       tooltip.style('visibility', 'visible');
       
       // Enhanced tooltip content
@@ -213,18 +219,6 @@ const GraphView = ({
       tooltip.style('visibility', 'hidden');
     });
     
-    // Add user initials inside nodes
-    svg.append('g')
-      .selectAll('text')
-      .data(nodes)
-      .join('text')
-      .attr('text-anchor', 'middle')
-      .attr('alignment-baseline', 'central')
-      .attr('fill', 'white')
-      .attr('font-size', '10px')
-      .attr('pointer-events', 'none')
-      .text((d: any) => d.name.split(' ').map(n => n[0]).join(''));
-    
     // Add drag behavior
     const drag = (simulation: any) => {
       function dragstarted(event: any) {
@@ -250,7 +244,7 @@ const GraphView = ({
         .on('end', dragended);
     };
     
-    node.call(drag(simulation));
+    nodeGroups.call(drag(simulation) as any);
     
     // Update positions on tick
     simulation.on('tick', () => {
@@ -260,25 +254,8 @@ const GraphView = ({
         .attr('x2', (d: any) => d.target.x)
         .attr('y2', (d: any) => d.target.y);
       
-      node
-        .attr('cx', (d: any) => d.x)
-        .attr('cy', (d: any) => d.y);
-        
-      // Update node labels position
-      svg.selectAll('text')
-        .filter(function() {
-          return !this.classList.contains('tooltip-text');
-        })
-        .each(function(d: any, i: number) {
-          const element = d3.select(this);
-          if (element.text() === d.name) {
-            // This is a name label
-            element.attr('x', d.x).attr('y', d.y + getNodeRadius(d) + 18);
-          } else if (element.text().length <= 2) {
-            // This is an initial
-            element.attr('x', d.x).attr('y', d.y + 1);
-          }
-        });
+      // Update node group positions
+      nodeGroups.attr('transform', (d: any) => `translate(${d.x}, ${d.y})`);
     });
     
     // Optional: Add zoom behavior

@@ -41,10 +41,21 @@ const MyFriends = () => {
     refreshUserData(selectedUser.id);
   };
   
-  const handleRemoveFriend = (friendId: number) => {
-    // This will be handled by the FriendCard through the UserContext
-    // Just update the local state for immediate UI feedback
-    setFriends(friends.filter(friend => friend.id !== friendId));
+  const handleRemoveFriend = async (friendId: number) => {
+    if (!currentUser) return;
+    
+    try {
+      // Call the API to remove friend
+      await api.removeFriend(currentUser.id, friendId);
+      
+      // Update local state for immediate feedback
+      setFriends(prev => prev.filter(friend => friend.id !== friendId));
+      
+      // Refresh user data to ensure consistency
+      await refreshUserData(currentUser.id);
+    } catch (error) {
+      console.error("Error removing friend:", error);
+    }
   };
   
   if (isUserLoading || loading) {
