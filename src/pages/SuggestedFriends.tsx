@@ -1,8 +1,7 @@
-
 import { useState, useEffect } from 'react';
 import { User, FriendSuggestion } from '@/utils/bfs';
 import { api } from '@/services/api';
-import FriendCard from '@/components/FriendCard';
+import FriendSuggestionCard from '@/components/FriendSuggestionCard';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import EmptyState from '@/components/EmptyState';
 import { UserPlus, Filter, Info } from 'lucide-react';
@@ -212,7 +211,7 @@ const SuggestedFriends = () => {
             {filteredSuggestions.length > 0 ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
                 {filteredSuggestions.map(suggestion => (
-                  <FriendCard
+                  <FriendSuggestionCard
                     key={suggestion.user.id}
                     user={suggestion.user}
                     connectionLevel={suggestion.connectionLevel}

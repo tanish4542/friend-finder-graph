@@ -73,10 +73,10 @@ const GraphView = ({
     
     // Set up the simulation
     const simulation = d3.forceSimulation(nodes as any)
-      .force('link', d3.forceLink(links).id((d: any) => d.index).distance(80))
-      .force('charge', d3.forceManyBody().strength(-120))
+      .force('link', d3.forceLink(links).id((d: any) => d.index).distance(120)) // Increased distance
+      .force('charge', d3.forceManyBody().strength(-180)) // Stronger repulsion
       .force('center', d3.forceCenter(width / 2, height / 2))
-      .force('collision', d3.forceCollide().radius(30));
+      .force('collision', d3.forceCollide().radius(40)); // Increased collision radius
     
     // Create a group for the links
     const link = svg.append('g')
@@ -108,13 +108,40 @@ const GraphView = ({
       switch(d.nodeType) {
         case 'self':
         case 'highlighted': 
-          return 12;
+          return 14;
         case 'direct-friend': 
-          return 10;
+          return 12;
         default: 
-          return 8;
+          return 10;
       }
     };
+    
+    // Create group for node labels (background)
+    svg.append('g')
+      .selectAll('text')
+      .data(nodes)
+      .join('text')
+      .attr('text-anchor', 'middle')
+      .attr('dy', (d: any) => getNodeRadius(d) + 18)
+      .attr('font-size', '10px')
+      .attr('fill', 'white')
+      .attr('stroke', 'rgba(0,0,0,0.5)')
+      .attr('stroke-width', 3)
+      .attr('paint-order', 'stroke')
+      .style('pointer-events', 'none')
+      .text((d: any) => d.name);
+    
+    // Create group for node labels (foreground text)
+    svg.append('g')
+      .selectAll('text')
+      .data(nodes)
+      .join('text')
+      .attr('text-anchor', 'middle')
+      .attr('dy', (d: any) => getNodeRadius(d) + 18)
+      .attr('font-size', '10px')
+      .attr('fill', 'white')
+      .style('pointer-events', 'none')
+      .text((d: any) => d.name);
     
     // Create a group for the nodes
     const node = svg.append('g')
@@ -153,18 +180,34 @@ const GraphView = ({
     
     node.on('mouseover', (event, d: any) => {
       tooltip.style('visibility', 'visible');
-      tooltipText.text(d.name);
+      
+      // Enhanced tooltip content
+      const tooltipContent = [
+        d.name,
+        `@${d.username}`,
+        d.friends.length > 0 ? `${d.friends.length} connections` : 'No connections'
+      ].join('\n');
+      
+      tooltipText.selectAll('tspan').remove();
+      
+      tooltipText.selectAll('tspan')
+        .data(tooltipContent.split('\n'))
+        .enter()
+        .append('tspan')
+        .attr('x', 0)
+        .attr('dy', (_, i) => i === 0 ? 0 : 15)
+        .text(d => d);
       
       const textBBox = (tooltipText.node() as SVGTextElement).getBBox();
       
       tooltipRect
-        .attr('width', textBBox.width + 10)
-        .attr('height', textBBox.height + 6)
-        .attr('x', -textBBox.width / 2 - 5)
-        .attr('y', -textBBox.height / 2 - 3);
+        .attr('width', textBBox.width + 20)
+        .attr('height', textBBox.height + 15)
+        .attr('x', -textBBox.width / 2 - 10)
+        .attr('y', -textBBox.height / 2 - 5);
     })
     .on('mousemove', (event) => {
-      tooltip.attr('transform', `translate(${event.offsetX}, ${event.offsetY - 20})`);
+      tooltip.attr('transform', `translate(${event.offsetX}, ${event.offsetY - 40})`);
     })
     .on('mouseout', () => {
       tooltip.style('visibility', 'hidden');
@@ -180,7 +223,7 @@ const GraphView = ({
       .attr('fill', 'white')
       .attr('font-size', '10px')
       .attr('pointer-events', 'none')
-      .text((d: any) => d.name.charAt(0));
+      .text((d: any) => d.name.split(' ').map(n => n[0]).join(''));
     
     // Add drag behavior
     const drag = (simulation: any) => {
@@ -221,10 +264,21 @@ const GraphView = ({
         .attr('cx', (d: any) => d.x)
         .attr('cy', (d: any) => d.y);
         
+      // Update node labels position
       svg.selectAll('text')
-        .data(nodes)
-        .attr('x', (d: any) => d.x)
-        .attr('y', (d: any) => d.y + 1);
+        .filter(function() {
+          return !this.classList.contains('tooltip-text');
+        })
+        .each(function(d: any, i: number) {
+          const element = d3.select(this);
+          if (element.text() === d.name) {
+            // This is a name label
+            element.attr('x', d.x).attr('y', d.y + getNodeRadius(d) + 18);
+          } else if (element.text().length <= 2) {
+            // This is an initial
+            element.attr('x', d.x).attr('y', d.y + 1);
+          }
+        });
     });
     
     // Optional: Add zoom behavior
