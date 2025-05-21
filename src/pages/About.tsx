@@ -1,4 +1,3 @@
-
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import {
@@ -8,7 +7,7 @@ import {
   AccordionTrigger,
 } from '@/components/ui/accordion';
 import { Card, CardContent } from '@/components/ui/card';
-import { Graph, ArrowRight } from 'lucide-react';
+import { BarChart, ArrowRight } from 'lucide-react';
 
 const About = () => {
   return (
@@ -236,7 +235,7 @@ const About = () => {
             </Link>
             <Link to="/graph">
               <Button variant="outline" size="lg">
-                <Graph className="mr-2 h-4 w-4" />
+                <BarChart className="mr-2 h-4 w-4" />
                 View Network Graph
               </Button>
             </Link>

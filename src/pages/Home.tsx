@@ -1,7 +1,6 @@
-
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Graph, Users, Search, Info } from 'lucide-react';
+import { BarChart, Users, Search, Info } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 
 const featureCards = [
@@ -20,7 +19,7 @@ const featureCards = [
     color: "bg-purple-100 text-purple-500"
   },
   {
-    icon: <Graph size={24} />,
+    icon: <BarChart size={24} />,
     title: "Network Graph",
     description: "Visualize your social connections as an interactive graph",
     link: "/graph",

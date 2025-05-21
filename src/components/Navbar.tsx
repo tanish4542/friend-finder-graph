@@ -6,7 +6,7 @@ import {
   Search, 
   Users, 
   UserPlus,
-  Graph, 
+  BarChart, 
   Info, 
   Menu, 
   X 
@@ -43,7 +43,7 @@ const Navbar = () => {
     { to: "/find-friends", icon: Search, label: "Find Friends" },
     { to: "/my-friends", icon: Users, label: "My Friends" },
     { to: "/suggested-friends", icon: UserPlus, label: "Suggested Friends" },
-    { to: "/graph", icon: Graph, label: "Network Graph" },
+    { to: "/graph", icon: BarChart, label: "Network Graph" },
     { to: "/about", icon: Info, label: "About BFS" }
   ];
 
