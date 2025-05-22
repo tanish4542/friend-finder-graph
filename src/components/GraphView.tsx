@@ -1,7 +1,9 @@
 
-import { useRef, useEffect } from 'react';
+import { useRef, useEffect, useState } from 'react';
 import * as d3 from 'd3';
 import { User } from '@/utils/bfs';
+import { Button } from '@/components/ui/button';
+import { Play, Pause, SkipForward, SkipBack, RefreshCw } from 'lucide-react';
 
 interface GraphViewProps {
   users: User[];
@@ -23,6 +25,113 @@ const GraphView = ({
   onSelectNode 
 }: GraphViewProps) => {
   const svgRef = useRef<SVGSVGElement>(null);
+  const [isAnimating, setIsAnimating] = useState(false);
+  const [animationSpeed, setAnimationSpeed] = useState(1000); // ms per step
+  const [animationStep, setAnimationStep] = useState(0);
+  const [maxSteps, setMaxSteps] = useState(0);
+  const [bfsPath, setBfsPath] = useState<number[][]>([]);
+  const animationRef = useRef<NodeJS.Timeout | null>(null);
+  
+  // Generate BFS animation steps
+  useEffect(() => {
+    if (!currentUserId && !highlightedUserId) return;
+    
+    const startUserId = highlightedUserId || currentUserId;
+    if (!startUserId) return;
+    
+    const bfsSteps = generateBFSSteps(startUserId, users);
+    setBfsPath(bfsSteps);
+    setMaxSteps(bfsSteps.length);
+    setAnimationStep(0);
+  }, [users, highlightedUserId, currentUserId]);
+  
+  // Animation control functions
+  const startAnimation = () => {
+    if (animationStep >= maxSteps) {
+      setAnimationStep(0);
+    }
+    
+    setIsAnimating(true);
+  };
+  
+  const pauseAnimation = () => {
+    setIsAnimating(false);
+    if (animationRef.current) {
+      clearTimeout(animationRef.current);
+      animationRef.current = null;
+    }
+  };
+  
+  const resetAnimation = () => {
+    pauseAnimation();
+    setAnimationStep(0);
+  };
+  
+  const stepForward = () => {
+    if (animationStep < maxSteps) {
+      setAnimationStep(prevStep => prevStep + 1);
+    }
+  };
+  
+  const stepBackward = () => {
+    if (animationStep > 0) {
+      setAnimationStep(prevStep => prevStep - 1);
+    }
+  };
+  
+  // Handle the animation loop
+  useEffect(() => {
+    if (isAnimating && animationStep < maxSteps) {
+      animationRef.current = setTimeout(() => {
+        setAnimationStep(prevStep => prevStep + 1);
+      }, animationSpeed);
+    } else if (animationStep >= maxSteps) {
+      setIsAnimating(false);
+    }
+    
+    return () => {
+      if (animationRef.current) {
+        clearTimeout(animationRef.current);
+      }
+    };
+  }, [isAnimating, animationStep, maxSteps, animationSpeed]);
+  
+  // Generate BFS steps from a starting user
+  const generateBFSSteps = (startUserId: number, users: User[]): number[][] => {
+    const steps: number[][] = [];
+    const visited = new Set<number>();
+    const queue: number[] = [];
+    
+    // Initialize with the starting user
+    queue.push(startUserId);
+    visited.add(startUserId);
+    steps.push([...queue]); // First step shows just the starting node
+    
+    while (queue.length > 0) {
+      const currentUserId = queue.shift()!;
+      const currentUser = users.find(u => u.id === currentUserId);
+      
+      if (!currentUser) continue;
+      
+      // For each friend of the current user
+      let levelDiscovered: number[] = [];
+      
+      for (const friendId of currentUser.friends) {
+        if (!visited.has(friendId)) {
+          visited.add(friendId);
+          queue.push(friendId);
+          levelDiscovered.push(friendId);
+        }
+      }
+      
+      if (levelDiscovered.length > 0) {
+        // Add this level's discoveries as a step
+        steps.push([...visited].filter(id => id !== startUserId));
+      }
+    }
+    
+    return steps;
+  };
   
   useEffect(() => {
     if (!svgRef.current || users.length === 0) return;
@@ -58,9 +167,23 @@ const GraphView = ({
         nodeType = 'highlighted';
       }
       
+      // Add animation state for BFS
+      let animationState = 'not-visited';
+      
+      if (animationStep > 0 && bfsPath.length > 0) {
+        const currentAnimationPath = bfsPath[Math.min(animationStep, bfsPath.length - 1)];
+        
+        if (user.id === (highlightedUserId || currentUserId)) {
+          animationState = 'source';
+        } else if (currentAnimationPath.includes(user.id)) {
+          animationState = 'visited';
+        }
+      }
+      
       return {
         ...user,
-        nodeType
+        nodeType,
+        animationState
       };
     });
     
@@ -89,10 +212,28 @@ const GraphView = ({
         }
       }
       
+      // Highlight edges in the current BFS path
+      let animationState = 'normal';
+      
+      if (animationStep > 0 && bfsPath.length > 0) {
+        const currentAnimationPath = bfsPath[Math.min(animationStep, bfsPath.length - 1)];
+        const startId = highlightedUserId || currentUserId;
+        
+        if (startId && 
+            ((conn.source === startId && currentAnimationPath.includes(conn.target)) || 
+             (conn.target === startId && currentAnimationPath.includes(conn.source)))) {
+          animationState = 'active';
+        } else if (currentAnimationPath.includes(conn.source) && 
+                   currentAnimationPath.includes(conn.target)) {
+          animationState = 'active';
+        }
+      }
+      
       return { 
         source, 
         target, 
-        weight: weight || 1 
+        weight: weight || 1,
+        animationState
       };
     });
     
@@ -113,11 +254,18 @@ const GraphView = ({
       .join('line')
       .attr('stroke-width', (d: any) => Math.sqrt(d.weight) * 1.5 || 1.5) // Thicker lines for stronger connections
       .attr('stroke', (d: any) => {
+        // BFS animation effect on edges
+        if (d.animationState === 'active') {
+          return '#f97316'; // Orange for active BFS edges
+        }
+        
         // Use different colors for strong vs weak connections
         if (d.weight > 8) return '#4ade80'; // Strong - green
         if (d.weight > 5) return '#fb923c'; // Medium - orange
         return '#666'; // Default
-      });
+      })
+      .attr('stroke-opacity', (d: any) => d.animationState === 'active' ? 0.8 : 0.3)
+      .attr('stroke-dasharray', (d: any) => d.animationState === 'active' ? '5,5' : 'none');
     
     // Add edge labels for interaction weights
     const edgeLabels = svg.append('g')
@@ -134,8 +282,18 @@ const GraphView = ({
       .text((d: any) => d.weight)
       .style('pointer-events', 'none');
     
-    // Function to get node color based on relationship
+    // Function to get node color based on relationship and animation state
     const getNodeColor = (d: any) => {
+      // Animation colors take precedence during animation
+      if (animationStep > 0) {
+        if (d.animationState === 'source') {
+          return '#6366f1'; // Indigo for source node
+        } else if (d.animationState === 'visited') {
+          return '#f97316'; // Orange for visited nodes in animation
+        }
+      }
+      
+      // Default coloring based on relationship
       switch(d.nodeType) {
         case 'self': 
           return '#4f46e5'; // Current user - indigo
@@ -152,6 +310,11 @@ const GraphView = ({
     
     // Function to get node size based on relationship
     const getNodeRadius = (d: any) => {
+      // Animation effect: make visited nodes bigger
+      if (animationStep > 0 && d.animationState !== 'not-visited') {
+        return d.animationState === 'source' ? 40 : 35;
+      }
+      
       switch(d.nodeType) {
         case 'self':
         case 'highlighted': 
@@ -178,8 +341,25 @@ const GraphView = ({
     nodeGroups.append('circle')
       .attr('r', getNodeRadius)
       .attr('fill', getNodeColor)
-      .attr('stroke', '#fff')
-      .attr('stroke-width', 1.5);
+      .attr('stroke', (d: any) => {
+        // Add pulsing effect to nodes in current BFS step
+        if (d.animationState === 'visited' || d.animationState === 'source') {
+          return '#f97316';
+        }
+        return '#fff';
+      })
+      .attr('stroke-width', (d: any) => {
+        if (d.animationState === 'visited' || d.animationState === 'source') {
+          return 3;
+        }
+        return 1.5;
+      })
+      .attr('class', (d: any) => {
+        if (d.animationState === 'visited' || d.animationState === 'source') {
+          return 'pulse';
+        }
+        return '';
+      });
     
     // Add background for text labels (name below node)
     nodeGroups.append('rect')
@@ -380,11 +560,79 @@ const GraphView = ({
     
     svg.call((zoom as any).transform, initialTransform);
     
-  }, [users, connections, highlightedUserId, currentUserId, width, height, onSelectNode]);
+  }, [users, connections, highlightedUserId, currentUserId, width, height, onSelectNode, animationStep, bfsPath]);
   
   return (
-    <div className="w-full h-full overflow-hidden">
-      <svg ref={svgRef} className="w-full bg-background/50 rounded-lg"></svg>
+    <div className="w-full h-full overflow-hidden flex flex-col">
+      <div className="flex items-center justify-center gap-2 mb-4 p-2 bg-background/60 rounded-lg">
+        <Button 
+          size="sm" 
+          variant="outline" 
+          onClick={resetAnimation} 
+          className="flex items-center gap-1"
+        >
+          <RefreshCw size={14} />
+          Reset
+        </Button>
+        
+        <Button 
+          size="sm" 
+          variant="outline" 
+          onClick={stepBackward}
+          disabled={animationStep <= 0}
+          className="flex items-center"
+        >
+          <SkipBack size={14} />
+        </Button>
+        
+        {isAnimating ? (
+          <Button 
+            size="sm" 
+            onClick={pauseAnimation} 
+            variant="default"
+            className="bg-social-primary hover:bg-social-primary/80"
+          >
+            <Pause size={14} className="mr-1" /> Pause
+          </Button>
+        ) : (
+          <Button 
+            size="sm" 
+            onClick={startAnimation} 
+            variant="default"
+            className="bg-social-primary hover:bg-social-primary/80"
+            disabled={animationStep >= maxSteps}
+          >
+            <Play size={14} className="mr-1" /> {animationStep >= maxSteps ? "Reset" : "Start BFS"}
+          </Button>
+        )}
+        
+        <Button 
+          size="sm" 
+          variant="outline" 
+          onClick={stepForward}
+          disabled={animationStep >= maxSteps}
+          className="flex items-center"
+        >
+          <SkipForward size={14} />
+        </Button>
+        
+        <div className="text-xs text-muted-foreground ml-2">
+          Step {animationStep}/{maxSteps > 0 ? maxSteps - 1 : 0}
+        </div>
+      </div>
+      
+      <div className="relative flex-grow">
+        <svg ref={svgRef} className="w-full bg-background/50 rounded-lg"></svg>
+        
+        {animationStep === 0 && (
+          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center p-4 bg-background/80 rounded-lg shadow-lg">
+            <h3 className="text-lg font-medium mb-2">BFS Animation</h3>
+            <p className="text-muted-foreground text-sm">
+              Click "Start BFS" to visualize the breadth-first search algorithm starting from the selected user.
+            </p>
+          </div>
+        )}
+      </div>
     </div>
   );
 };

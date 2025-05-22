@@ -21,6 +21,23 @@ import Navbar from "./components/Navbar";
 // Set title
 document.title = "SocialBFS - Social Network Friend Finder";
 
+// Add pulse animation CSS
+const pulseStyle = document.createElement('style');
+pulseStyle.textContent = `
+  @keyframes pulse {
+    0%, 100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.5;
+    }
+  }
+  .pulse {
+    animation: pulse 1s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+`;
+document.head.appendChild(pulseStyle);
+
 const queryClient = new QueryClient();
 
 const App = () => (

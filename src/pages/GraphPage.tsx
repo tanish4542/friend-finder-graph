@@ -153,6 +153,27 @@ const GraphPage = () => {
                       </div>
                     </div>
                     
+                    <div className="pt-4 mt-4 border-t border-border/30">
+                      <p className="text-xs text-muted-foreground mb-2">BFS Animation:</p>
+                      <div className="space-y-2">
+                        <p className="text-xs">
+                          Use the animation controls to visualize how the Breadth-First Search algorithm explores the network starting from the selected user.
+                        </p>
+                        <div className="flex items-center gap-2">
+                          <div className="w-3 h-3 rounded-full bg-indigo-500"></div>
+                          <p className="text-xs">Starting node</p>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <div className="w-3 h-3 rounded-full bg-orange-500"></div>
+                          <p className="text-xs">Discovered nodes</p>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <div className="w-6 h-0.5 border-t-2 border-dashed border-orange-500"></div>
+                          <p className="text-xs">Path traversed</p>
+                        </div>
+                      </div>
+                    </div>
+                    
                     <div className="pt-2 mt-4 border-t border-border/30">
                       <p className="text-xs text-muted-foreground mb-2">Edge connections:</p>
                       <div className="space-y-2">
@@ -188,7 +209,7 @@ const GraphPage = () => {
                 onSelectNode={handleSelectNode}
               />
               <p className="text-sm text-muted-foreground text-center mt-4">
-                Click on any node to select a user. Drag nodes to explore connections. Thicker edges represent stronger interactions.
+                Click on any node to select a user. Use the animation controls to visualize BFS algorithm. Drag nodes to explore connections.
               </p>
             </div>
           </div>
