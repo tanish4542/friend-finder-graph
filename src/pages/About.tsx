@@ -1,4 +1,3 @@
-
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import {
@@ -11,6 +10,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { BarChart, ArrowRight, BookOpen } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import BFSDemo from '@/components/BFSDemo';
 
 const About = () => {
   return (
@@ -45,6 +45,14 @@ const About = () => {
                   </li>
                   <li>Repeat until the queue is empty or the target is found</li>
                 </ol>
+              </div>
+              
+              <div className="mb-6">
+                <h3 className="font-medium mb-3">Interactive BFS Demonstration</h3>
+                <BFSDemo />
+                <p className="text-xs text-center text-muted-foreground mt-2">
+                  Click the play button to watch BFS in action, or use the step button to go through the algorithm one step at a time.
+                </p>
               </div>
               
               <div className="flex justify-center my-6">
