@@ -5,7 +5,7 @@ import { User } from '@/utils/bfs';
 
 interface GraphViewProps {
   users: User[];
-  connections: { source: number; target: number }[];
+  connections: { source: number; target: number; weight?: number }[];
   highlightedUserId?: number;
   currentUserId?: number;
   width: number;
@@ -64,19 +64,45 @@ const GraphView = ({
       };
     });
     
-    // Create links data from connections
+    // Enhance connections with interaction weights
     const links = connections.map(conn => {
       const source = nodes.findIndex(node => node.id === conn.source);
       const target = nodes.findIndex(node => node.id === conn.target);
-      return { source, target };
+      
+      // Find interaction weight if available
+      const sourceUser = users.find(user => user.id === conn.source);
+      const targetUser = users.find(user => user.id === conn.target);
+      
+      let weight = conn.weight || 0;
+      
+      if (sourceUser && !weight) {
+        const interaction = sourceUser.interactions?.find(i => i.userId === conn.target);
+        if (interaction) {
+          weight = interaction.weight;
+        }
+      }
+      
+      if (!weight && targetUser) {
+        const interaction = targetUser.interactions?.find(i => i.userId === conn.source);
+        if (interaction) {
+          weight = interaction.weight;
+        }
+      }
+      
+      return { 
+        source, 
+        target, 
+        weight: weight || 1 
+      };
     });
     
-    // Set up the simulation
+    // Set up the simulation with adjusted link distance based on weights
     const simulation = d3.forceSimulation(nodes as any)
-      .force('link', d3.forceLink(links).id((d: any) => d.index).distance(150)) // Increased distance further
-      .force('charge', d3.forceManyBody().strength(-200)) // Stronger repulsion
+      .force('link', d3.forceLink(links).id((d: any) => d.index)
+        .distance((d: any) => 150 / (Math.sqrt(d.weight) || 1))) // Stronger links (higher weight) are shorter
+      .force('charge', d3.forceManyBody().strength(-200)) 
       .force('center', d3.forceCenter(width / 2, height / 2))
-      .force('collision', d3.forceCollide().radius(60)); // Increased collision radius
+      .force('collision', d3.forceCollide().radius(60)); 
     
     // Create a group for the links
     const link = svg.append('g')
@@ -85,7 +111,28 @@ const GraphView = ({
       .selectAll('line')
       .data(links)
       .join('line')
-      .attr('stroke-width', 1.5);
+      .attr('stroke-width', (d: any) => Math.sqrt(d.weight) * 1.5 || 1.5) // Thicker lines for stronger connections
+      .attr('stroke', (d: any) => {
+        // Use different colors for strong vs weak connections
+        if (d.weight > 8) return '#4ade80'; // Strong - green
+        if (d.weight > 5) return '#fb923c'; // Medium - orange
+        return '#666'; // Default
+      });
+    
+    // Add edge labels for interaction weights
+    const edgeLabels = svg.append('g')
+      .selectAll('text')
+      .data(links.filter((d: any) => d.weight > 1)) // Only show labels for weighted edges
+      .join('text')
+      .attr('dy', -3)
+      .attr('text-anchor', 'middle')
+      .attr('font-size', '10px')
+      .attr('fill', '#fff')
+      .attr('stroke', '#000')
+      .attr('stroke-width', 0.2)
+      .attr('paint-order', 'stroke')
+      .text((d: any) => d.weight)
+      .style('pointer-events', 'none');
     
     // Function to get node color based on relationship
     const getNodeColor = (d: any) => {
@@ -108,11 +155,11 @@ const GraphView = ({
       switch(d.nodeType) {
         case 'self':
         case 'highlighted': 
-          return 30; // Increased size for better visibility
+          return 35; // Increased size for better visibility
         case 'direct-friend': 
-          return 25; // Increased size
+          return 28; // Increased size
         default: 
-          return 20; // Increased size
+          return 22; // Increased size
       }
     };
     
@@ -134,20 +181,20 @@ const GraphView = ({
       .attr('stroke', '#fff')
       .attr('stroke-width', 1.5);
     
-    // Add background for text labels
+    // Add background for text labels (name below node)
     nodeGroups.append('rect')
       .attr('rx', 5)
       .attr('ry', 5)
       .attr('fill', 'rgba(0,0,0,0.6)')
-      .attr('width', (d: any) => Math.max(d.name.length * 7, 60))
-      .attr('height', 18)
-      .attr('x', (d: any) => -(Math.max(d.name.length * 7, 60) / 2))
+      .attr('width', (d: any) => Math.max(d.name.length * 6.5, 60))
+      .attr('height', 20)
+      .attr('x', (d: any) => -(Math.max(d.name.length * 6.5, 60) / 2))
       .attr('y', (d: any) => getNodeRadius(d) + 5);
     
-    // Add text labels for nodes
+    // Add text labels for nodes below the node
     nodeGroups.append('text')
       .attr('text-anchor', 'middle')
-      .attr('dy', (d: any) => getNodeRadius(d) + 18)
+      .attr('dy', (d: any) => getNodeRadius(d) + 19)
       .attr('font-size', '12px')
       .attr('fill', 'white')
       .attr('pointer-events', 'none')
@@ -158,12 +205,12 @@ const GraphView = ({
       .attr('text-anchor', 'middle')
       .attr('alignment-baseline', 'central')
       .attr('fill', 'white')
-      .attr('font-size', '12px')
+      .attr('font-size', (d: any) => getNodeRadius(d) > 30 ? '14px' : '12px')
       .attr('font-weight', 'bold')
       .attr('pointer-events', 'none')
       .text((d: any) => d.name.split(' ').map((n: string) => n[0]).join(''));
     
-    // Add tooltips (username on hover)
+    // Enhanced tooltip with more details
     const tooltip = svg.append('g')
       .attr('class', 'tooltip')
       .style('pointer-events', 'none')
@@ -172,7 +219,7 @@ const GraphView = ({
     const tooltipRect = tooltip.append('rect')
       .attr('rx', 5)
       .attr('ry', 5)
-      .attr('fill', 'rgba(0,0,0,0.7)')
+      .attr('fill', 'rgba(0,0,0,0.8)')
       .attr('stroke', '#fff')
       .attr('stroke-width', 0.5)
       .attr('padding', 5);
@@ -187,12 +234,16 @@ const GraphView = ({
     nodeGroups.on('mouseover', (event, d: any) => {
       tooltip.style('visibility', 'visible');
       
+      // Get direct friends for this user
+      const directFriends = users.filter(u => d.friends.includes(u.id));
+      
       // Enhanced tooltip content
       const tooltipContent = [
         d.name,
         `@${d.username}`,
-        d.friends.length > 0 ? `${d.friends.length} connections` : 'No connections'
-      ].join('\n');
+        directFriends.length > 0 ? `${directFriends.length} connections` : 'No connections',
+        directFriends.length > 0 ? `Friends: ${directFriends.slice(0, 3).map(f => f.name).join(', ')}${directFriends.length > 3 ? '...' : ''}` : ''
+      ].filter(Boolean).join('\n');
       
       tooltipText.selectAll('tspan').remove();
       
@@ -217,6 +268,54 @@ const GraphView = ({
     })
     .on('mouseout', () => {
       tooltip.style('visibility', 'hidden');
+    });
+    
+    // Add tooltip for edges showing interaction strength
+    link.on('mouseover', function(event, d: any) {
+      const sourceUser = nodes[d.source.index];
+      const targetUser = nodes[d.target.index];
+      
+      if (!sourceUser || !targetUser) return;
+      
+      tooltip.style('visibility', 'visible');
+      
+      const tooltipContent = [
+        `${sourceUser.name} — ${targetUser.name}`,
+        `Interaction strength: ${d.weight}`
+      ].join('\n');
+      
+      tooltipText.selectAll('tspan').remove();
+      
+      tooltipText.selectAll('tspan')
+        .data(tooltipContent.split('\n'))
+        .enter()
+        .append('tspan')
+        .attr('x', 0)
+        .attr('dy', (_, i) => i === 0 ? 0 : 15)
+        .text(d => d);
+      
+      const textBBox = (tooltipText.node() as SVGTextElement).getBBox();
+      
+      tooltipRect
+        .attr('width', textBBox.width + 20)
+        .attr('height', textBBox.height + 15)
+        .attr('x', -textBBox.width / 2 - 10)
+        .attr('y', -textBBox.height / 2 - 5);
+        
+      // Highlight the current edge
+      d3.select(this)
+        .attr('stroke-opacity', 1)
+        .attr('stroke-width', (d: any) => (Math.sqrt(d.weight) * 2) || 3);
+    })
+    .on('mousemove', (event) => {
+      tooltip.attr('transform', `translate(${event.offsetX}, ${event.offsetY - 40})`);
+    })
+    .on('mouseout', function() {
+      tooltip.style('visibility', 'hidden');
+      // Restore edge styling
+      d3.select(this)
+        .attr('stroke-opacity', 0.3)
+        .attr('stroke-width', (d: any) => (Math.sqrt(d.weight) * 1.5) || 1.5);
     });
     
     // Add drag behavior
@@ -246,7 +345,7 @@ const GraphView = ({
     
     nodeGroups.call(drag(simulation) as any);
     
-    // Update positions on tick
+    // Update edge positions in tick events
     simulation.on('tick', () => {
       link
         .attr('x1', (d: any) => d.source.x)
@@ -254,18 +353,32 @@ const GraphView = ({
         .attr('x2', (d: any) => d.target.x)
         .attr('y2', (d: any) => d.target.y);
       
+      // Update edge label positions
+      edgeLabels
+        .attr('x', (d: any) => (d.source.x + d.target.x) / 2)
+        .attr('y', (d: any) => (d.source.y + d.target.y) / 2);
+      
       // Update node group positions
       nodeGroups.attr('transform', (d: any) => `translate(${d.x}, ${d.y})`);
     });
     
     // Optional: Add zoom behavior
     const zoom = d3.zoom()
-      .scaleExtent([0.5, 3])
+      .scaleExtent([0.4, 3])
       .on('zoom', (event) => {
         svg.selectAll('g').attr('transform', event.transform);
       });
     
     svg.call(zoom as any);
+    
+    // Optional: Initial zoom to fit all nodes
+    const initialScale = 0.9;
+    const initialTransform = d3.zoomIdentity
+      .translate(width/2, height/2)
+      .scale(initialScale)
+      .translate(-width/2, -height/2);
+    
+    svg.call((zoom as any).transform, initialTransform);
     
   }, [users, connections, highlightedUserId, currentUserId, width, height, onSelectNode]);
   

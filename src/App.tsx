@@ -18,6 +18,9 @@ import NotFound from "./pages/NotFound";
 // Components
 import Navbar from "./components/Navbar";
 
+// Set title
+document.title = "SocialBFS - Social Network Friend Finder";
+
 const queryClient = new QueryClient();
 
 const App = () => (

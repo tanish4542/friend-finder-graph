@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { User, FriendSuggestion } from '@/utils/bfs';
 import { api } from '@/services/api';
@@ -22,6 +23,7 @@ import {
 } from '@/components/ui/tooltip';
 import { Slider } from '@/components/ui/slider';
 import UserSearchInput from '@/components/UserSearchInput';
+import { toast } from "sonner";
 
 const SuggestedFriends = () => {
   const { currentUser, isLoading: isUserLoading, refreshUserData } = useUser();
@@ -33,6 +35,8 @@ const SuggestedFriends = () => {
   // Filters
   const [maxDepth, setMaxDepth] = useState<number>(3);
   const [minMutualFriends, setMinMutualFriends] = useState<number>(0);
+  const [alphaWeight, setAlphaWeight] = useState<number>(2);
+  const [betaWeight, setBetaWeight] = useState<number>(1);
   
   useEffect(() => {
     const fetchData = async () => {
@@ -41,7 +45,7 @@ const SuggestedFriends = () => {
       setLoading(true);
       try {
         // Get all friend suggestions with a high max depth to get all possible suggestions
-        const suggestionsData = await api.getFriendSuggestions(currentUser.id, 5);
+        const suggestionsData = await api.getFriendSuggestions(currentUser.id, 5, alphaWeight, betaWeight);
         setSuggestions(suggestionsData);
       } catch (error) {
         console.error('Error fetching friend suggestions:', error);
@@ -53,7 +57,7 @@ const SuggestedFriends = () => {
     if (currentUser) {
       fetchData();
     }
-  }, [currentUser]);
+  }, [currentUser, alphaWeight, betaWeight]);
   
   // Apply filters whenever filters or suggestions change
   useEffect(() => {
@@ -67,18 +71,63 @@ const SuggestedFriends = () => {
     }
   }, [suggestions, maxDepth, minMutualFriends]);
   
-  const handleIgnore = (userId: number) => {
-    // Remove from suggestions
-    setSuggestions(suggestions.filter(s => s.user.id !== userId));
+  const handleIgnore = async (userId: number) => {
+    if (!currentUser) return;
+    
+    try {
+      // Call API to ignore friend suggestion
+      await api.ignoreFriend(currentUser.id, userId);
+      
+      // Remove from suggestions
+      setSuggestions(suggestions.filter(s => s.user.id !== userId));
+      
+      toast.success("Friend suggestion ignored");
+    } catch (error) {
+      console.error('Error ignoring friend suggestion:', error);
+      toast.error("Failed to ignore friend suggestion");
+    }
   };
 
-  const handleAddFriend = (userId: number) => {
-    // Remove from suggestions
-    setSuggestions(suggestions.filter(s => s.user.id !== userId));
+  const handleAddFriend = async (userId: number) => {
+    if (!currentUser) return;
+    
+    try {
+      // Call API to add friend
+      await api.addFriend(currentUser.id, userId);
+      
+      // Remove from suggestions
+      setSuggestions(suggestions.filter(s => s.user.id !== userId));
+      
+      // Refresh user data to update friends list
+      await refreshUserData(currentUser.id);
+      
+      toast.success("Friend added successfully!");
+    } catch (error) {
+      console.error('Error adding friend:', error);
+      toast.error("Failed to add friend");
+    }
   };
 
   const handleSelectUser = (selectedUser: User) => {
     refreshUserData(selectedUser.id);
+  };
+  
+  const recalculateScores = () => {
+    if (!currentUser) return;
+    
+    setLoading(true);
+    api.getFriendSuggestions(currentUser.id, 5, alphaWeight, betaWeight)
+      .then(newSuggestions => {
+        setSuggestions(newSuggestions);
+        toast.success("Recommendation scores recalculated");
+      })
+      .catch(error => {
+        console.error('Error recalculating scores:', error);
+        toast.error("Failed to recalculate recommendation scores");
+      })
+      .finally(() => {
+        setLoading(false);
+      });
   };
   
   if (isUserLoading || loading) {
@@ -106,9 +155,9 @@ const SuggestedFriends = () => {
       <div className="max-w-6xl mx-auto">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
           <div>
-            <h1 className="text-3xl font-bold mb-1 gradient-text">Suggested Friends</h1>
+            <h1 className="text-3xl font-bold mb-1 gradient-text">SocialBFS - Friend Finder</h1>
             <p className="text-muted-foreground">
-              Discover potential connections using BFS algorithm 
+              Smart friend recommendations using BFS algorithm
             </p>
           </div>
           
@@ -197,9 +246,86 @@ const SuggestedFriends = () => {
                     />
                   </div>
                   
+                  <div>
+                    <h3 className="text-sm font-medium mb-2">Recommendation Weight Factors</h3>
+                    <div className="space-y-4">
+                      <div>
+                        <div className="flex items-center justify-between">
+                          <label className="text-sm flex items-center gap-1">
+                            Mutual Friends (α)
+                            <TooltipProvider>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <Info size={14} className="text-muted-foreground" />
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  <p className="w-[200px] text-xs">
+                                    Weight given to the number of mutual friends in the recommendation score
+                                  </p>
+                                </TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
+                          </label>
+                          <span className="text-sm bg-accent/50 px-2 py-0.5 rounded">
+                            {alphaWeight}
+                          </span>
+                        </div>
+                        <Slider 
+                          value={[alphaWeight]} 
+                          min={0}
+                          max={5}
+                          step={1}
+                          onValueChange={(values) => setAlphaWeight(values[0])}
+                          className="my-2"
+                        />
+                      </div>
+                      
+                      <div>
+                        <div className="flex items-center justify-between">
+                          <label className="text-sm flex items-center gap-1">
+                            Interaction Weight (β)
+                            <TooltipProvider>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <Info size={14} className="text-muted-foreground" />
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  <p className="w-[200px] text-xs">
+                                    Weight given to interaction strength in the recommendation score
+                                  </p>
+                                </TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
+                          </label>
+                          <span className="text-sm bg-accent/50 px-2 py-0.5 rounded">
+                            {betaWeight}
+                          </span>
+                        </div>
+                        <Slider 
+                          value={[betaWeight]} 
+                          min={0}
+                          max={5}
+                          step={1}
+                          onValueChange={(values) => setBetaWeight(values[0])}
+                          className="my-2"
+                        />
+                      </div>
+                      
+                      <button
+                        onClick={recalculateScores}
+                        className="w-full bg-social-primary/80 hover:bg-social-primary text-white py-1 px-3 rounded text-sm"
+                      >
+                        Recalculate Scores
+                      </button>
+                    </div>
+                  </div>
+                  
                   <div className="pt-2 border-t border-border/30">
                     <p className="text-sm text-muted-foreground">
                       Showing {filteredSuggestions.length} of {suggestions.length} suggestions
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Formula: Score = ({alphaWeight} × Mutual Friends) + ({betaWeight} × Interaction Weight)
                     </p>
                   </div>
                 </div>
@@ -216,6 +342,8 @@ const SuggestedFriends = () => {
                     user={suggestion.user}
                     connectionLevel={suggestion.connectionLevel}
                     mutualFriends={suggestion.mutualFriends}
+                    score={suggestion.score}
+                    interactionWeight={suggestion.interactionWeight}
                     onAddFriend={handleAddFriend}
                     onIgnore={handleIgnore}
                   />

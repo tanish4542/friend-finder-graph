@@ -16,7 +16,7 @@ const GraphPage = () => {
   
   const [loading, setLoading] = useState(true);
   const [users, setUsers] = useState<User[]>([]);
-  const [connections, setConnections] = useState<{source: number; target: number}[]>([]);
+  const [connections, setConnections] = useState<{source: number; target: number; weight?: number}[]>([]);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   
   useEffect(() => {
@@ -27,15 +27,23 @@ const GraphPage = () => {
         const allUsers = await api.getUsers();
         setUsers(allUsers);
         
-        // Get connections
-        const connectionList: {source: number; target: number}[] = [];
+        // Get connections with weights
+        const connectionList: {source: number; target: number; weight?: number}[] = [];
         
         // For each user, add their friend connections
         allUsers.forEach(user => {
           user.friends.forEach(friendId => {
-            // Add each connection only once (smaller ID first to avoid duplicates)
+            // Only add each connection once
             if (user.id < friendId) {
-              connectionList.push({ source: user.id, target: friendId });
+              // Find interaction weight if available
+              const interaction = user.interactions?.find(i => i.userId === friendId);
+              const weight = interaction?.weight;
+              
+              connectionList.push({ 
+                source: user.id, 
+                target: friendId,
+                weight
+              });
             }
           });
         });
@@ -79,10 +87,10 @@ const GraphPage = () => {
       <div className="max-w-6xl mx-auto">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
           <div>
-            <h1 className="text-3xl font-bold mb-1 gradient-text">Network Graph</h1>
+            <h1 className="text-3xl font-bold mb-1 gradient-text">SocialBFS - Network Graph</h1>
             <p className="text-muted-foreground">
-              Visual representation of the social network 
-              <HelpTooltip text="This graph uses a force-directed algorithm to display connections between users. Click on any node to select that user." />
+              Visual representation of the social network
+              <HelpTooltip text="This graph uses a force-directed algorithm to display connections between users. Click on any node to select that user. Edge thickness represents interaction strength." />
             </p>
           </div>
           
@@ -144,6 +152,24 @@ const GraphPage = () => {
                         </div>
                       </div>
                     </div>
+                    
+                    <div className="pt-2 mt-4 border-t border-border/30">
+                      <p className="text-xs text-muted-foreground mb-2">Edge connections:</p>
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-2">
+                          <div className="w-8 h-0.5 bg-green-500"></div>
+                          <p className="text-xs">Strong interaction (8-10)</p>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <div className="w-8 h-0.5 bg-orange-500"></div>
+                          <p className="text-xs">Medium interaction (5-7)</p>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <div className="w-8 h-0.5 bg-gray-500"></div>
+                          <p className="text-xs">Light interaction (1-4)</p>
+                        </div>
+                      </div>
+                    </div>
                   </CardContent>
                 </Card>
               </div>
@@ -162,7 +188,7 @@ const GraphPage = () => {
                 onSelectNode={handleSelectNode}
               />
               <p className="text-sm text-muted-foreground text-center mt-4">
-                Click on any node to select a user. Drag the graph to explore connections.
+                Click on any node to select a user. Drag nodes to explore connections. Thicker edges represent stronger interactions.
               </p>
             </div>
           </div>

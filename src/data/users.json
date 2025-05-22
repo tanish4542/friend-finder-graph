@@ -8,7 +8,12 @@
       "email": "tanish@example.com",
       "bio": "Software developer passionate about web technologies and algorithms",
       "avatar": "/placeholder.svg",
-      "friends": [2, 3, 7]
+      "friends": [2, 3, 7],
+      "interactions": [
+        { "userId": 2, "weight": 10 },
+        { "userId": 3, "weight": 7 },
+        { "userId": 7, "weight": 5 }
+      ]
     },
     {
       "id": 2,
@@ -17,7 +22,12 @@
       "email": "vikram@example.com",
       "bio": "UX designer with a love for clean interfaces and user-centered design",
       "avatar": "/placeholder.svg",
-      "friends": [1, 3, 4]
+      "friends": [1, 3, 4],
+      "interactions": [
+        { "userId": 1, "weight": 10 },
+        { "userId": 3, "weight": 8 },
+        { "userId": 4, "weight": 6 }
+      ]
     },
     {
       "id": 3,
@@ -26,7 +36,12 @@
       "email": "prachi@example.com",
       "bio": "Data scientist exploring machine learning and its applications",
       "avatar": "/placeholder.svg",
-      "friends": [1, 2, 5]
+      "friends": [1, 2, 5],
+      "interactions": [
+        { "userId": 1, "weight": 7 },
+        { "userId": 2, "weight": 8 },
+        { "userId": 5, "weight": 9 }
+      ]
     },
     {
       "id": 4,
@@ -35,7 +50,12 @@
       "email": "sriranga@example.com",
       "bio": "Product manager with a background in computer science",
       "avatar": "/placeholder.svg",
-      "friends": [2, 6, 8]
+      "friends": [2, 6, 8],
+      "interactions": [
+        { "userId": 2, "weight": 6 },
+        { "userId": 6, "weight": 7 },
+        { "userId": 8, "weight": 5 }
+      ]
     },
     {
       "id": 5,
@@ -44,7 +64,12 @@
       "email": "varshini@example.com",
       "bio": "Full-stack developer specializing in React and Node.js",
       "avatar": "/placeholder.svg",
-      "friends": [3, 8, 9]
+      "friends": [3, 8, 9],
+      "interactions": [
+        { "userId": 3, "weight": 9 },
+        { "userId": 8, "weight": 4 },
+        { "userId": 9, "weight": 7 }
+      ]
     },
     {
       "id": 6,
@@ -53,7 +78,12 @@
       "email": "soumya@example.com",
       "bio": "DevOps engineer focused on CI/CD and cloud infrastructure",
       "avatar": "/placeholder.svg",
-      "friends": [4, 7, 10]
+      "friends": [4, 7, 10],
+      "interactions": [
+        { "userId": 4, "weight": 7 },
+        { "userId": 7, "weight": 6 },
+        { "userId": 10, "weight": 8 }
+      ]
     },
     {
       "id": 7,
@@ -62,7 +92,12 @@
       "email": "praneeth@example.com",
       "bio": "Mobile app developer with expertise in React Native and Flutter",
       "avatar": "/placeholder.svg",
-      "friends": [1, 6, 9]
+      "friends": [1, 6, 9],
+      "interactions": [
+        { "userId": 1, "weight": 5 },
+        { "userId": 6, "weight": 6 },
+        { "userId": 9, "weight": 8 }
+      ]
     },
     {
       "id": 8,
@@ -71,7 +106,12 @@
       "email": "akshay@example.com",
       "bio": "Frontend developer passionate about accessibility and performance",
       "avatar": "/placeholder.svg",
-      "friends": [4, 5, 10]
+      "friends": [4, 5, 10],
+      "interactions": [
+        { "userId": 4, "weight": 5 },
+        { "userId": 5, "weight": 4 },
+        { "userId": 10, "weight": 6 }
+      ]
     },
     {
       "id": 9,
@@ -80,7 +120,12 @@
       "email": "aditya@example.com",
       "bio": "Backend developer with a focus on API design and databases",
       "avatar": "/placeholder.svg",
-      "friends": [5, 7, 11]
+      "friends": [5, 7, 11],
+      "interactions": [
+        { "userId": 5, "weight": 7 },
+        { "userId": 7, "weight": 8 },
+        { "userId": 11, "weight": 4 }
+      ]
     },
     {
       "id": 10,
@@ -89,7 +134,12 @@
       "email": "arnav@example.com",
       "bio": "Security specialist with a strong background in network security",
       "avatar": "/placeholder.svg",
-      "friends": [6, 8, 12]
+      "friends": [6, 8, 12],
+      "interactions": [
+        { "userId": 6, "weight": 8 },
+        { "userId": 8, "weight": 6 },
+        { "userId": 12, "weight": 7 }
+      ]
     },
     {
       "id": 11,
@@ -98,7 +148,12 @@
       "email": "anshika@example.com",
       "bio": "AI researcher with a passion for natural language processing",
       "avatar": "/placeholder.svg",
-      "friends": [9, 12, 13]
+      "friends": [9, 12, 13],
+      "interactions": [
+        { "userId": 9, "weight": 4 },
+        { "userId": 12, "weight": 9 },
+        { "userId": 13, "weight": 5 }
+      ]
     },
     {
       "id": 12,
@@ -107,7 +162,12 @@
       "email": "swaroop@example.com",
       "bio": "Cloud architect specialized in AWS and Azure solutions",
       "avatar": "/placeholder.svg",
-      "friends": [10, 11, 14]
+      "friends": [10, 11, 14],
+      "interactions": [
+        { "userId": 10, "weight": 7 },
+        { "userId": 11, "weight": 9 },
+        { "userId": 14, "weight": 6 }
+      ]
     },
     {
       "id": 13,
@@ -116,7 +176,12 @@
       "email": "ganya@example.com",
       "bio": "UI/UX designer focusing on mobile-first experiences",
       "avatar": "/placeholder.svg",
-      "friends": [11, 14, 15]
+      "friends": [11, 14, 15],
+      "interactions": [
+        { "userId": 11, "weight": 5 },
+        { "userId": 14, "weight": 8 },
+        { "userId": 15, "weight": 9 }
+      ]
     },
     {
       "id": 14,
@@ -125,7 +190,12 @@
       "email": "manvi@example.com",
       "bio": "Technical writer and developer advocate",
       "avatar": "/placeholder.svg",
-      "friends": [12, 13, 15]
+      "friends": [12, 13, 15],
+      "interactions": [
+        { "userId": 12, "weight": 6 },
+        { "userId": 13, "weight": 8 },
+        { "userId": 15, "weight": 7 }
+      ]
     },
     {
       "id": 15,
@@ -134,7 +204,243 @@
       "email": "vignap@example.com",
       "bio": "Game developer with a passion for graphics and animation",
       "avatar": "/placeholder.svg",
-      "friends": [13, 14]
+      "friends": [13, 14],
+      "interactions": [
+        { "userId": 13, "weight": 9 },
+        { "userId": 14, "weight": 7 }
+      ]
+    },
+    {
+      "id": 16,
+      "name": "Vinayak",
+      "username": "vinayak",
+      "email": "vinayak@example.com",
+      "bio": "Data engineer specializing in big data technologies",
+      "avatar": "/placeholder.svg",
+      "friends": [17, 18],
+      "interactions": [
+        { "userId": 17, "weight": 8 },
+        { "userId": 18, "weight": 6 }
+      ]
+    },
+    {
+      "id": 17,
+      "name": "Rahul",
+      "username": "rahul",
+      "email": "rahul@example.com",
+      "bio": "Machine learning enthusiast and researcher",
+      "avatar": "/placeholder.svg",
+      "friends": [16, 19],
+      "interactions": [
+        { "userId": 16, "weight": 8 },
+        { "userId": 19, "weight": 7 }
+      ]
+    },
+    {
+      "id": 18,
+      "name": "Yatin",
+      "username": "yatin",
+      "email": "yatin@example.com",
+      "bio": "Blockchain developer and cryptocurrency enthusiast",
+      "avatar": "/placeholder.svg",
+      "friends": [16, 20],
+      "interactions": [
+        { "userId": 16, "weight": 6 },
+        { "userId": 20, "weight": 5 }
+      ]
+    },
+    {
+      "id": 19,
+      "name": "Revanth",
+      "username": "revanth",
+      "email": "revanth@example.com",
+      "bio": "IoT specialist working on smart home solutions",
+      "avatar": "/placeholder.svg",
+      "friends": [17, 21],
+      "interactions": [
+        { "userId": 17, "weight": 7 },
+        { "userId": 21, "weight": 8 }
+      ]
+    },
+    {
+      "id": 20,
+      "name": "Aanya",
+      "username": "aanya",
+      "email": "aanya@example.com",
+      "bio": "Cybersecurity analyst focused on network protection",
+      "avatar": "/placeholder.svg",
+      "friends": [18, 22],
+      "interactions": [
+        { "userId": 18, "weight": 5 },
+        { "userId": 22, "weight": 9 }
+      ]
+    },
+    {
+      "id": 21,
+      "name": "Saanvi",
+      "username": "saanvi",
+      "email": "saanvi@example.com",
+      "bio": "AR/VR developer creating immersive experiences",
+      "avatar": "/placeholder.svg",
+      "friends": [19, 23],
+      "interactions": [
+        { "userId": 19, "weight": 8 },
+        { "userId": 23, "weight": 4 }
+      ]
+    },
+    {
+      "id": 22,
+      "name": "Pratham",
+      "username": "pratham",
+      "email": "pratham@example.com",
+      "bio": "Quality assurance engineer with a focus on automation",
+      "avatar": "/placeholder.svg",
+      "friends": [20, 24],
+      "interactions": [
+        { "userId": 20, "weight": 9 },
+        { "userId": 24, "weight": 6 }
+      ]
+    },
+    {
+      "id": 23,
+      "name": "Aadi",
+      "username": "aadi",
+      "email": "aadi@example.com",
+      "bio": "Cloud security specialist working with multi-cloud environments",
+      "avatar": "/placeholder.svg",
+      "friends": [21, 25],
+      "interactions": [
+        { "userId": 21, "weight": 4 },
+        { "userId": 25, "weight": 7 }
+      ]
+    },
+    {
+      "id": 24,
+      "name": "Aman",
+      "username": "aman",
+      "email": "aman@example.com",
+      "bio": "Mobile app designer with expertise in user experience",
+      "avatar": "/placeholder.svg",
+      "friends": [22, 26],
+      "interactions": [
+        { "userId": 22, "weight": 6 },
+        { "userId": 26, "weight": 8 }
+      ]
+    },
+    {
+      "id": 25,
+      "name": "Ram",
+      "username": "ram",
+      "email": "ram@example.com",
+      "bio": "Backend developer specializing in microservices architecture",
+      "avatar": "/placeholder.svg",
+      "friends": [23, 27],
+      "interactions": [
+        { "userId": 23, "weight": 7 },
+        { "userId": 27, "weight": 5 }
+      ]
+    },
+    {
+      "id": 26,
+      "name": "Shyam",
+      "username": "shyam",
+      "email": "shyam@example.com",
+      "bio": "Frontend developer focused on responsive web design",
+      "avatar": "/placeholder.svg",
+      "friends": [24, 28],
+      "interactions": [
+        { "userId": 24, "weight": 8 },
+        { "userId": 28, "weight": 9 }
+      ]
+    },
+    {
+      "id": 27,
+      "name": "Sandesh",
+      "username": "sandesh",
+      "email": "sandesh@example.com",
+      "bio": "DevOps specialist implementing CI/CD pipelines",
+      "avatar": "/placeholder.svg",
+      "friends": [25, 29],
+      "interactions": [
+        { "userId": 25, "weight": 5 },
+        { "userId": 29, "weight": 7 }
+      ]
+    },
+    {
+      "id": 28,
+      "name": "Sinchana",
+      "username": "sinchana",
+      "email": "sinchana@example.com",
+      "bio": "UI developer specialized in design systems",
+      "avatar": "/placeholder.svg",
+      "friends": [26, 30],
+      "interactions": [
+        { "userId": 26, "weight": 9 },
+        { "userId": 30, "weight": 6 }
+      ]
+    },
+    {
+      "id": 29,
+      "name": "Suhani",
+      "username": "suhani",
+      "email": "suhani@example.com",
+      "bio": "Mobile game developer with focus on Unity",
+      "avatar": "/placeholder.svg",
+      "friends": [27, 31],
+      "interactions": [
+        { "userId": 27, "weight": 7 },
+        { "userId": 31, "weight": 8 }
+      ]
+    },
+    {
+      "id": 30,
+      "name": "Prerika",
+      "username": "prerika",
+      "email": "prerika@example.com",
+      "bio": "Data analyst working with business intelligence tools",
+      "avatar": "/placeholder.svg",
+      "friends": [28, 32],
+      "interactions": [
+        { "userId": 28, "weight": 6 },
+        { "userId": 32, "weight": 5 }
+      ]
+    },
+    {
+      "id": 31,
+      "name": "Samya",
+      "username": "samya",
+      "email": "samya@example.com",
+      "bio": "Cloud engineer specializing in serverless architectures",
+      "avatar": "/placeholder.svg",
+      "friends": [29, 33],
+      "interactions": [
+        { "userId": 29, "weight": 8 },
+        { "userId": 33, "weight": 7 }
+      ]
+    },
+    {
+      "id": 32,
+      "name": "Kavya",
+      "username": "kavya",
+      "email": "kavya@example.com",
+      "bio": "UX researcher conducting user studies and interviews",
+      "avatar": "/placeholder.svg",
+      "friends": [30],
+      "interactions": [
+        { "userId": 30, "weight": 5 }
+      ]
+    },
+    {
+      "id": 33,
+      "name": "Diksha",
+      "username": "diksha",
+      "email": "diksha@example.com",
+      "bio": "Machine learning engineer working on computer vision",
+      "avatar": "/placeholder.svg",
+      "friends": [31],
+      "interactions": [
+        { "userId": 31, "weight": 7 }
+      ]
     }
   ]
 }

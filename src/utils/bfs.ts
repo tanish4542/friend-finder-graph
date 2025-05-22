@@ -1,6 +1,11 @@
 
 import usersData from '../data/users.json';
 
+export interface Interaction {
+  userId: number;
+  weight: number;
+}
+
 export interface User {
   id: number;
   name: string;
@@ -9,6 +14,7 @@ export interface User {
   bio: string;
   avatar: string;
   friends: number[];
+  interactions: Interaction[];
 }
 
 export interface FriendSuggestion {
@@ -16,6 +22,8 @@ export interface FriendSuggestion {
   mutualFriends: User[];
   connectionLevel: number;
   connectionPath: User[];
+  score: number;
+  interactionWeight: number;
 }
 
 // Get all users
@@ -43,6 +51,15 @@ export const getDirectFriends = (userId: number, users: User[] = usersData.users
     const friend = getUserById(friendId, users);
     return friend as User;
   }).filter(Boolean);
+};
+
+// Get interaction weight between two users
+export const getInteractionWeight = (user1Id: number, user2Id: number, users: User[] = usersData.users): number => {
+  const user1 = getUserById(user1Id, users);
+  if (!user1) return 0;
+  
+  const interaction = user1.interactions.find(i => i.userId === user2Id);
+  return interaction ? interaction.weight : 0;
 };
 
 // Get connection path between two users
@@ -101,11 +118,34 @@ export const findMutualFriends = (user1Id: number, user2Id: number, users: User[
   return mutualFriendIds.map(id => getUserById(id, users)!).filter(Boolean);
 };
 
-// Get friend suggestions using BFS algorithm
+// Calculate total interaction weight through mutual friends
+export const calculateInteractionWeight = (
+  userId: number,
+  targetId: number,
+  mutualFriends: User[],
+  users: User[] = usersData.users
+): number => {
+  let totalWeight = 0;
+  
+  mutualFriends.forEach(friend => {
+    // Get weights of interactions between mutual friend and both users
+    const weight1 = getInteractionWeight(userId, friend.id, users);
+    const weight2 = getInteractionWeight(friend.id, targetId, users);
+    
+    // Add the minimum of these weights (representing the "strength" of this path)
+    totalWeight += Math.min(weight1, weight2);
+  });
+  
+  return totalWeight;
+};
+
+// Get friend suggestions using BFS algorithm with weighted scoring
 export const getFriendSuggestions = (
   userId: number, 
   maxLevel = 2,
-  users: User[] = usersData.users
+  users: User[] = usersData.users,
+  alphaWeight = 2,  // Coefficient for mutual friends count
+  betaWeight = 1    // Coefficient for interaction weight
 ): FriendSuggestion[] => {
   const user = getUserById(userId, users);
   if (!user) return [];
@@ -135,11 +175,19 @@ export const getFriendSuggestions = (
         // Add to suggestions if level >= 1 (not direct friend)
         if (level >= 1) {
           const mutualFriends = findMutualFriends(userId, friendId, users);
+          const interactionWeight = calculateInteractionWeight(userId, friendId, mutualFriends, users);
+          
+          // Calculate recommendation score using formula:
+          // Score = (alpha * numMutualFriends) + (beta * totalInteractionWeight)
+          const score = (alphaWeight * mutualFriends.length) + (betaWeight * interactionWeight);
+          
           suggestions.push({
             user: friend,
             mutualFriends,
             connectionLevel: level + 1,
-            connectionPath: [...path, friend]
+            connectionPath: [...path, friend],
+            score,
+            interactionWeight
           });
         }
         
@@ -149,5 +197,6 @@ export const getFriendSuggestions = (
     }
   }
   
-  return suggestions;
+  // Sort suggestions by score (higher is better)
+  return suggestions.sort((a, b) => b.score - a.score);
 };

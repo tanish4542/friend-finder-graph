@@ -10,6 +10,7 @@ import { Users } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import HelpTooltip from '@/components/HelpTooltip';
 import { useUser } from '@/context/UserContext';
+import { toast } from "sonner";
 
 const MyFriends = () => {
   const { currentUser, isLoading: isUserLoading, refreshUserData } = useUser();
@@ -17,23 +18,23 @@ const MyFriends = () => {
   const [loading, setLoading] = useState(true);
   const [friends, setFriends] = useState<User[]>([]);
   
-  useEffect(() => {
-    const fetchData = async () => {
-      if (!currentUser) return;
-      
-      setLoading(true);
-      try {
-        const friendsData = await api.getUserFriends(currentUser.id);
-        setFriends(friendsData);
-      } catch (error) {
-        console.error('Error fetching friends data:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
+  const fetchFriends = async () => {
+    if (!currentUser) return;
     
+    setLoading(true);
+    try {
+      const friendsData = await api.getUserFriends(currentUser.id);
+      setFriends(friendsData);
+    } catch (error) {
+      console.error('Error fetching friends data:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+  useEffect(() => {
     if (currentUser) {
-      fetchData();
+      fetchFriends();
     }
   }, [currentUser]);
   
@@ -53,8 +54,11 @@ const MyFriends = () => {
       
       // Refresh user data to ensure consistency
       await refreshUserData(currentUser.id);
+      
+      toast.success("Friend removed successfully");
     } catch (error) {
       console.error("Error removing friend:", error);
+      toast.error("Failed to remove friend");
     }
   };
   
@@ -83,7 +87,7 @@ const MyFriends = () => {
       <div className="max-w-6xl mx-auto">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
           <div>
-            <h1 className="text-3xl font-bold mb-1 gradient-text">My Friends</h1>
+            <h1 className="text-3xl font-bold mb-1 gradient-text">SocialBFS - My Friends</h1>
             <p className="text-muted-foreground">
               Direct connections (Level 1) 
               <HelpTooltip text="Level 1 connections are users directly connected to the selected user." />
