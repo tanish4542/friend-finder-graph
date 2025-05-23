@@ -348,7 +348,7 @@ console.log('Friends of friends:', friendsOfFriends);`}
                   <div className="bg-blue-50 p-4 rounded-lg">
                     <h4 className="font-medium mb-2 text-blue-800">Key Insight: The Pruning Logic</h4>
                     <p className="text-sm text-blue-700 mb-2">
-                      When α ≥ β, it means the maximizing player has already found a better option elsewhere, 
+                      When α &gt;= β, it means the maximizing player has already found a better option elsewhere, 
                       so the minimizing player won't choose this path. We can safely ignore the remaining branches.
                     </p>
                     <div className="text-xs text-blue-600">
