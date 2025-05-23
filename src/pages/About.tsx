@@ -30,7 +30,7 @@ const About = () => {
                 Breadth-First Search is a graph traversal algorithm that explores all vertices at the current depth before moving on to vertices at the next depth level. It's like exploring a maze by checking all possible paths one step at a time.
               </p>
               
-              <div className="bg-social-light p-4 rounded-lg mb-4">
+              <div className="bg-[#f3f0ff] p-4 rounded-lg mb-4">
                 <h3 className="font-medium mb-2">BFS Algorithm Steps:</h3>
                 <ol className="list-decimal list-inside space-y-2">
                   <li>Start with a root node and mark it as visited</li>
@@ -58,31 +58,31 @@ const About = () => {
               <div className="flex justify-center my-6">
                 <div className="relative w-full max-w-md h-48 bg-gray-50 rounded-lg flex items-center justify-center">
                   {/* Simplified BFS visualization */}
-                  <div className="absolute w-10 h-10 rounded-full bg-social-primary text-white flex items-center justify-center top-4 left-1/2 transform -translate-x-1/2">
+                  <div className="absolute w-10 h-10 rounded-full bg-[#9b87f5] text-white flex items-center justify-center top-4 left-1/2 transform -translate-x-1/2">
                     A
                   </div>
                   
-                  <div className="absolute w-10 h-10 rounded-full bg-social-secondary text-white flex items-center justify-center top-20 left-1/4 transform -translate-x-1/2">
+                  <div className="absolute w-10 h-10 rounded-full bg-[#7E69AB] text-white flex items-center justify-center top-20 left-1/4 transform -translate-x-1/2">
                     B
                   </div>
                   
-                  <div className="absolute w-10 h-10 rounded-full bg-social-secondary text-white flex items-center justify-center top-20 left-3/4 transform -translate-x-1/2">
+                  <div className="absolute w-10 h-10 rounded-full bg-[#7E69AB] text-white flex items-center justify-center top-20 left-3/4 transform -translate-x-1/2">
                     C
                   </div>
                   
-                  <div className="absolute w-10 h-10 rounded-full bg-social-tertiary text-white flex items-center justify-center bottom-4 left-1/6 transform -translate-x-1/2">
+                  <div className="absolute w-10 h-10 rounded-full bg-[#6D28D9] text-white flex items-center justify-center bottom-4 left-1/6 transform -translate-x-1/2">
                     D
                   </div>
                   
-                  <div className="absolute w-10 h-10 rounded-full bg-social-tertiary text-white flex items-center justify-center bottom-4 left-1/3 transform -translate-x-1/2">
+                  <div className="absolute w-10 h-10 rounded-full bg-[#6D28D9] text-white flex items-center justify-center bottom-4 left-1/3 transform -translate-x-1/2">
                     E
                   </div>
                   
-                  <div className="absolute w-10 h-10 rounded-full bg-social-tertiary text-white flex items-center justify-center bottom-4 left-2/3 transform -translate-x-1/2">
+                  <div className="absolute w-10 h-10 rounded-full bg-[#6D28D9] text-white flex items-center justify-center bottom-4 left-2/3 transform -translate-x-1/2">
                     F
                   </div>
                   
-                  <div className="absolute w-10 h-10 rounded-full bg-social-tertiary text-white flex items-center justify-center bottom-4 left-5/6 transform -translate-x-1/2">
+                  <div className="absolute w-10 h-10 rounded-full bg-[#6D28D9] text-white flex items-center justify-center bottom-4 left-5/6 transform -translate-x-1/2">
                     G
                   </div>
                   
@@ -110,15 +110,15 @@ const About = () => {
               
               <div className="flex justify-center space-x-4 mb-4 text-sm text-center">
                 <div>
-                  <div className="w-4 h-4 rounded-full bg-social-primary mx-auto mb-1"></div>
+                  <div className="w-4 h-4 rounded-full bg-[#9b87f5] mx-auto mb-1"></div>
                   <p>Level 0</p>
                 </div>
                 <div>
-                  <div className="w-4 h-4 rounded-full bg-social-secondary mx-auto mb-1"></div>
+                  <div className="w-4 h-4 rounded-full bg-[#7E69AB] mx-auto mb-1"></div>
                   <p>Level 1</p>
                 </div>
                 <div>
-                  <div className="w-4 h-4 rounded-full bg-social-tertiary mx-auto mb-1"></div>
+                  <div className="w-4 h-4 rounded-full bg-[#6D28D9] mx-auto mb-1"></div>
                   <p>Level 2</p>
                 </div>
               </div>
@@ -180,12 +180,13 @@ const About = () => {
           <Card className="mb-6">
             <CardContent className="pt-6">
               <Tabs defaultValue="bfs" className="w-full">
-                <TabsList className="mb-4">
+                <TabsList className="mb-4 grid w-full grid-cols-3">
                   <TabsTrigger value="bfs">BFS Algorithm</TabsTrigger>
                   <TabsTrigger value="dfs">BFS vs DFS</TabsTrigger>
                   <TabsTrigger value="alpha-beta">Alpha-Beta Pruning</TabsTrigger>
                 </TabsList>
-                <TabsContent value="bfs">
+                
+                <TabsContent value="bfs" className="space-y-4">
                   <h3 className="font-medium mb-2">BFS Algorithm in JavaScript</h3>
                   <ScrollArea className="h-[400px] w-full rounded-md border p-4 bg-gray-900 text-gray-100 font-mono text-sm">
                     <pre className="text-left">
@@ -261,7 +262,8 @@ console.log('Friends of friends:', friendsOfFriends);`}
                     </pre>
                   </ScrollArea>
                 </TabsContent>
-                <TabsContent value="dfs">
+                
+                <TabsContent value="dfs" className="space-y-4">
                   <h3 className="font-medium mb-2">BFS vs DFS Comparison</h3>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
@@ -294,57 +296,69 @@ console.log('Friends of friends:', friendsOfFriends);`}
                     </p>
                   </div>
                 </TabsContent>
-                <TabsContent value="alpha-beta">
-                  <div className="space-y-4">
-                    <div className="flex items-center gap-2 mb-4">
-                      <Brain className="h-5 w-5 text-social-primary" />
-                      <h3 className="font-medium">Alpha-Beta Pruning Algorithm</h3>
-                    </div>
+                
+                <TabsContent value="alpha-beta" className="space-y-4">
+                  <div className="flex items-center gap-2 mb-4">
+                    <Brain className="h-5 w-5 text-[#9b87f5]" />
+                    <h3 className="font-medium">Alpha-Beta Pruning Algorithm</h3>
+                  </div>
+                  
+                  <div className="bg-gradient-to-r from-[#9b87f5]/10 to-[#7E69AB]/10 p-4 rounded-lg">
+                    <p className="text-sm mb-3">
+                      Alpha-Beta pruning is an optimization technique for the minimax algorithm used in game theory and decision trees. 
+                      It reduces the number of nodes evaluated in the search tree by eliminating branches that won't affect the final decision.
+                    </p>
                     
-                    <div className="bg-gradient-to-r from-social-primary/10 to-social-secondary/10 p-4 rounded-lg">
-                      <p className="text-sm mb-3">
-                        Alpha-Beta pruning is an optimization technique for the minimax algorithm used in game theory and decision trees. 
-                        While not directly used in BFS for social networks, it's an important algorithm concept worth understanding.
-                      </p>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                      <div className="bg-white/50 p-3 rounded">
+                        <h4 className="font-medium text-sm mb-2 flex items-center gap-1">
+                          <Zap className="h-4 w-4 text-green-600" />
+                          Alpha (α) - Maximizer's Best
+                        </h4>
+                        <p className="text-xs text-muted-foreground">
+                          The best value that the maximizing player can guarantee so far. 
+                          It represents the lower bound of possible scores for the maximizing player.
+                        </p>
+                      </div>
                       
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                        <div className="bg-white/50 p-3 rounded">
-                          <h4 className="font-medium text-sm mb-2 flex items-center gap-1">
-                            <Zap className="h-4 w-4 text-green-600" />
-                            Alpha (α)
-                          </h4>
-                          <p className="text-xs text-muted-foreground">
-                            The best value that the maximizing player can guarantee. 
-                            Represents the lower bound of possible scores.
-                          </p>
-                        </div>
-                        
-                        <div className="bg-white/50 p-3 rounded">
-                          <h4 className="font-medium text-sm mb-2 flex items-center gap-1">
-                            <Zap className="h-4 w-4 text-red-600" />
-                            Beta (β)
-                          </h4>
-                          <p className="text-xs text-muted-foreground">
-                            The best value that the minimizing player can guarantee. 
-                            Represents the upper bound of possible scores.
-                          </p>
-                        </div>
+                      <div className="bg-white/50 p-3 rounded">
+                        <h4 className="font-medium text-sm mb-2 flex items-center gap-1">
+                          <Zap className="h-4 w-4 text-red-600" />
+                          Beta (β) - Minimizer's Best
+                        </h4>
+                        <p className="text-xs text-muted-foreground">
+                          The best value that the minimizing player can guarantee so far. 
+                          It represents the upper bound of possible scores for the minimizing player.
+                        </p>
                       </div>
                     </div>
-                    
-                    <div className="bg-gray-50 p-4 rounded-lg">
-                      <h4 className="font-medium mb-2">How Alpha-Beta Pruning Works:</h4>
-                      <ol className="list-decimal list-inside space-y-2 text-sm">
-                        <li>Start with α = -∞ and β = +∞</li>
-                        <li>For maximizing nodes: update α with the maximum value found</li>
-                        <li>For minimizing nodes: update β with the minimum value found</li>
-                        <li>If α ≥ β at any point, prune the remaining branches (cutoff)</li>
-                        <li>This eliminates branches that won't affect the final decision</li>
-                      </ol>
+                  </div>
+                  
+                  <div className="bg-gray-50 p-4 rounded-lg">
+                    <h4 className="font-medium mb-2">How Alpha-Beta Pruning Works:</h4>
+                    <ol className="list-decimal list-inside space-y-2 text-sm">
+                      <li><strong>Initialize:</strong> Start with α = -∞ (worst for maximizer) and β = +∞ (worst for minimizer)</li>
+                      <li><strong>Maximizing nodes:</strong> Update α with the maximum value found so far</li>
+                      <li><strong>Minimizing nodes:</strong> Update β with the minimum value found so far</li>
+                      <li><strong>Pruning condition:</strong> If α ≥ β at any point, prune the remaining branches (cutoff)</li>
+                      <li><strong>Result:</strong> This eliminates branches that won't affect the final decision, saving computation time</li>
+                    </ol>
+                  </div>
+                  
+                  <div className="bg-blue-50 p-4 rounded-lg">
+                    <h4 className="font-medium mb-2 text-blue-800">Key Insight: The Pruning Logic</h4>
+                    <p className="text-sm text-blue-700 mb-2">
+                      When α ≥ β, it means the maximizing player has already found a better option elsewhere, 
+                      so the minimizing player won't choose this path. We can safely ignore the remaining branches.
+                    </p>
+                    <div className="text-xs text-blue-600">
+                      <strong>Example:</strong> If maximizer has α = 5 and minimizer finds β = 3, 
+                      the maximizer won't go down this path since they already have a better option (5 > 3).
                     </div>
-                    
-                    <ScrollArea className="h-[300px] w-full rounded-md border p-4 bg-gray-900 text-gray-100 font-mono text-xs">
-                      <pre className="text-left">
+                  </div>
+                  
+                  <ScrollArea className="h-[350px] w-full rounded-md border p-4 bg-gray-900 text-gray-100 font-mono text-xs">
+                    <pre className="text-left">
 {`// Alpha-Beta Pruning Implementation
 function alphaBeta(node, depth, alpha, beta, maximizingPlayer) {
   // Base case: if we've reached max depth or terminal node
@@ -362,8 +376,8 @@ function alphaBeta(node, depth, alpha, beta, maximizingPlayer) {
       
       // Beta cutoff - prune remaining branches
       if (beta <= alpha) {
-        console.log('Beta cutoff at alpha:', alpha, 'beta:', beta);
-        break; // α-β pruning
+        console.log('🚫 Beta cutoff! Alpha:', alpha, 'Beta:', beta);
+        break; // α-β pruning - remaining siblings won't be explored
       }
     }
     return maxEval;
@@ -376,45 +390,82 @@ function alphaBeta(node, depth, alpha, beta, maximizingPlayer) {
       minEval = Math.min(minEval, eval);
       beta = Math.min(beta, eval);
       
-      // Alpha cutoff - prune remaining branches
+      // Alpha cutoff - prune remaining branches  
       if (beta <= alpha) {
-        console.log('Alpha cutoff at alpha:', alpha, 'beta:', beta);
-        break; // α-β pruning
+        console.log('✂️ Alpha cutoff! Alpha:', alpha, 'Beta:', beta);
+        break; // α-β pruning - remaining siblings won't be explored
       }
     }
     return minEval;
   }
 }
 
+// Helper functions (implementation depends on your game)
+function isTerminal(node) {
+  // Check if this is a leaf node (game over, max depth, etc.)
+  return node.gameOver || node.children.length === 0;
+}
+
+function evaluate(node) {
+  // Return the heuristic value of this position
+  // Positive values favor the maximizing player
+  // Negative values favor the minimizing player
+  return node.score;
+}
+
+function getChildren(node) {
+  // Return all possible moves/states from current position
+  return node.children || [];
+}
+
 // Example usage in a game tree
 const gameTree = {
-  // Game state representation
-  board: [...],
-  player: 'X'
+  score: null,
+  gameOver: false,
+  children: [/* ... possible moves ... */]
 };
 
 // Find best move using alpha-beta pruning
 const bestScore = alphaBeta(gameTree, 6, -Infinity, Infinity, true);
-console.log('Best score:', bestScore);`}
-                      </pre>
-                    </ScrollArea>
-                    
-                    <div className="mt-4 space-y-2">
-                      <h4 className="font-medium text-sm">Key Benefits:</h4>
+console.log('🎯 Best score for maximizing player:', bestScore);
+
+// Performance comparison:
+// Minimax: Explores all ~b^d nodes (b=branching factor, d=depth)
+// Alpha-Beta: Explores ~b^(d/2) nodes in best case (50% reduction!)
+// In practice: Usually 25-40% reduction in nodes explored`}
+                    </pre>
+                  </ScrollArea>
+                  
+                  <div className="mt-4 space-y-3">
+                    <h4 className="font-medium text-sm">🚀 Key Benefits of Alpha-Beta Pruning:</h4>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                       <ul className="list-disc list-inside space-y-1 text-sm text-muted-foreground">
-                        <li><strong>Efficiency:</strong> Reduces search space significantly (up to 50% in best case)</li>
+                        <li><strong>Efficiency:</strong> Reduces search space by up to 50% in optimal conditions</li>
                         <li><strong>Optimal:</strong> Always finds the same result as minimax but faster</li>
-                        <li><strong>Memory:</strong> Uses same memory as minimax algorithm</li>
+                      </ul>
+                      <ul className="list-disc list-inside space-y-1 text-sm text-muted-foreground">
+                        <li><strong>Memory:</strong> Uses same memory as standard minimax algorithm</li>
                         <li><strong>Practical:</strong> Essential for game AI with large search spaces</li>
                       </ul>
                     </div>
-                    
-                    <div className="bg-blue-50 p-3 rounded-lg mt-4">
-                      <p className="text-sm text-blue-800">
-                        <strong>Real-world applications:</strong> Chess engines, checkers, tic-tac-toe, 
-                        decision trees in machine learning, and any adversarial search problems.
-                      </p>
-                    </div>
+                  </div>
+                  
+                  <div className="bg-green-50 p-3 rounded-lg mt-4">
+                    <h4 className="font-medium text-sm text-green-800 mb-2">🎮 Real-world Applications:</h4>
+                    <p className="text-sm text-green-700">
+                      <strong>Game AI:</strong> Chess engines (Deep Blue, Stockfish), checkers, tic-tac-toe, Go engines<br/>
+                      <strong>Decision Trees:</strong> Machine learning optimization, business decision analysis<br/>
+                      <strong>Adversarial Search:</strong> Any two-player zero-sum game or competitive scenario
+                    </p>
+                  </div>
+                  
+                  <div className="bg-yellow-50 p-3 rounded-lg">
+                    <h4 className="font-medium text-sm text-yellow-800 mb-2">⚡ Performance Tips:</h4>
+                    <ul className="text-sm text-yellow-700 space-y-1">
+                      <li>• <strong>Move ordering:</strong> Evaluate best moves first for maximum pruning</li>
+                      <li>• <strong>Iterative deepening:</strong> Use previous search results to improve ordering</li>
+                      <li>• <strong>Transposition tables:</strong> Cache results to avoid re-evaluating same positions</li>
+                    </ul>
                   </div>
                 </TabsContent>
               </Tabs>
@@ -467,12 +518,12 @@ console.log('Best score:', bestScore);`}
         <section className="text-center">
           <h2 className="text-2xl font-semibold mb-6">Try It Yourself</h2>
           <p className="text-muted-foreground mb-6">
-            Explore the Friend Finder app to see BFS in action. Search for users, view the network graph, and discover potential connections.
+            Explore the NodeMingle app to see BFS in action. Search for users, view the network graph, and discover potential connections.
           </p>
           
           <div className="flex flex-wrap justify-center gap-4">
             <Link to="/">
-              <Button size="lg" className="bg-social-primary hover:bg-social-tertiary">
+              <Button size="lg" className="bg-[#9b87f5] hover:bg-[#7E69AB]">
                 <BookOpen className="mr-2 h-4 w-4" />
                 Get Started
               </Button>
