@@ -19,7 +19,7 @@ const Home = () => {
       <section className="mb-16 text-center max-w-4xl mx-auto">
         <div className="glass-card p-8 animate-fade-in">
           <h1 className="text-5xl md:text-6xl font-bold mb-6">
-            <span className="gradient-text">Friend Finder</span>
+            <span className="gradient-text">NodeMingle</span>
           </h1>
           <p className="text-xl md:text-2xl text-muted-foreground max-w-2xl mx-auto mb-10">
             An educational platform that uses the Breadth-First Search algorithm to find connections in your social network
