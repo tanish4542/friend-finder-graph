@@ -7,7 +7,7 @@ import {
   AccordionTrigger,
 } from '@/components/ui/accordion';
 import { Card, CardContent } from '@/components/ui/card';
-import { BarChart, ArrowRight, BookOpen } from 'lucide-react';
+import { BarChart, ArrowRight, BookOpen, Zap, Brain } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import BFSDemo from '@/components/BFSDemo';
@@ -183,6 +183,7 @@ const About = () => {
                 <TabsList className="mb-4">
                   <TabsTrigger value="bfs">BFS Algorithm</TabsTrigger>
                   <TabsTrigger value="dfs">BFS vs DFS</TabsTrigger>
+                  <TabsTrigger value="alpha-beta">Alpha-Beta Pruning</TabsTrigger>
                 </TabsList>
                 <TabsContent value="bfs">
                   <h3 className="font-medium mb-2">BFS Algorithm in JavaScript</h3>
@@ -291,6 +292,129 @@ console.log('Friends of friends:', friendsOfFriends);`}
                     <p className="text-sm text-muted-foreground mt-2">
                       <strong>When to use DFS:</strong> Exploring all possible paths, maze solving, detecting cycles
                     </p>
+                  </div>
+                </TabsContent>
+                <TabsContent value="alpha-beta">
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-2 mb-4">
+                      <Brain className="h-5 w-5 text-social-primary" />
+                      <h3 className="font-medium">Alpha-Beta Pruning Algorithm</h3>
+                    </div>
+                    
+                    <div className="bg-gradient-to-r from-social-primary/10 to-social-secondary/10 p-4 rounded-lg">
+                      <p className="text-sm mb-3">
+                        Alpha-Beta pruning is an optimization technique for the minimax algorithm used in game theory and decision trees. 
+                        While not directly used in BFS for social networks, it's an important algorithm concept worth understanding.
+                      </p>
+                      
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        <div className="bg-white/50 p-3 rounded">
+                          <h4 className="font-medium text-sm mb-2 flex items-center gap-1">
+                            <Zap className="h-4 w-4 text-green-600" />
+                            Alpha (α)
+                          </h4>
+                          <p className="text-xs text-muted-foreground">
+                            The best value that the maximizing player can guarantee. 
+                            Represents the lower bound of possible scores.
+                          </p>
+                        </div>
+                        
+                        <div className="bg-white/50 p-3 rounded">
+                          <h4 className="font-medium text-sm mb-2 flex items-center gap-1">
+                            <Zap className="h-4 w-4 text-red-600" />
+                            Beta (β)
+                          </h4>
+                          <p className="text-xs text-muted-foreground">
+                            The best value that the minimizing player can guarantee. 
+                            Represents the upper bound of possible scores.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="bg-gray-50 p-4 rounded-lg">
+                      <h4 className="font-medium mb-2">How Alpha-Beta Pruning Works:</h4>
+                      <ol className="list-decimal list-inside space-y-2 text-sm">
+                        <li>Start with α = -∞ and β = +∞</li>
+                        <li>For maximizing nodes: update α with the maximum value found</li>
+                        <li>For minimizing nodes: update β with the minimum value found</li>
+                        <li>If α ≥ β at any point, prune the remaining branches (cutoff)</li>
+                        <li>This eliminates branches that won't affect the final decision</li>
+                      </ol>
+                    </div>
+                    
+                    <ScrollArea className="h-[300px] w-full rounded-md border p-4 bg-gray-900 text-gray-100 font-mono text-xs">
+                      <pre className="text-left">
+{`// Alpha-Beta Pruning Implementation
+function alphaBeta(node, depth, alpha, beta, maximizingPlayer) {
+  // Base case: if we've reached max depth or terminal node
+  if (depth === 0 || isTerminal(node)) {
+    return evaluate(node);
+  }
+  
+  if (maximizingPlayer) {
+    let maxEval = -Infinity;
+    
+    for (let child of getChildren(node)) {
+      let eval = alphaBeta(child, depth - 1, alpha, beta, false);
+      maxEval = Math.max(maxEval, eval);
+      alpha = Math.max(alpha, eval);
+      
+      // Beta cutoff - prune remaining branches
+      if (beta <= alpha) {
+        console.log('Beta cutoff at alpha:', alpha, 'beta:', beta);
+        break; // α-β pruning
+      }
+    }
+    return maxEval;
+    
+  } else {
+    let minEval = Infinity;
+    
+    for (let child of getChildren(node)) {
+      let eval = alphaBeta(child, depth - 1, alpha, beta, true);
+      minEval = Math.min(minEval, eval);
+      beta = Math.min(beta, eval);
+      
+      // Alpha cutoff - prune remaining branches
+      if (beta <= alpha) {
+        console.log('Alpha cutoff at alpha:', alpha, 'beta:', beta);
+        break; // α-β pruning
+      }
+    }
+    return minEval;
+  }
+}
+
+// Example usage in a game tree
+const gameTree = {
+  // Game state representation
+  board: [...],
+  player: 'X'
+};
+
+// Find best move using alpha-beta pruning
+const bestScore = alphaBeta(gameTree, 6, -Infinity, Infinity, true);
+console.log('Best score:', bestScore);`}
+                      </pre>
+                    </ScrollArea>
+                    
+                    <div className="mt-4 space-y-2">
+                      <h4 className="font-medium text-sm">Key Benefits:</h4>
+                      <ul className="list-disc list-inside space-y-1 text-sm text-muted-foreground">
+                        <li><strong>Efficiency:</strong> Reduces search space significantly (up to 50% in best case)</li>
+                        <li><strong>Optimal:</strong> Always finds the same result as minimax but faster</li>
+                        <li><strong>Memory:</strong> Uses same memory as minimax algorithm</li>
+                        <li><strong>Practical:</strong> Essential for game AI with large search spaces</li>
+                      </ul>
+                    </div>
+                    
+                    <div className="bg-blue-50 p-3 rounded-lg mt-4">
+                      <p className="text-sm text-blue-800">
+                        <strong>Real-world applications:</strong> Chess engines, checkers, tic-tac-toe, 
+                        decision trees in machine learning, and any adversarial search problems.
+                      </p>
+                    </div>
                   </div>
                 </TabsContent>
               </Tabs>
