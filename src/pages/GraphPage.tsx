@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { User } from '@/utils/bfs';
 import { api } from '@/services/api';
@@ -87,7 +86,7 @@ const GraphPage = () => {
       <div className="max-w-6xl mx-auto">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
           <div>
-            <h1 className="text-3xl font-bold mb-1 gradient-text">SocialBFS - Network Graph</h1>
+            <h1 className="text-3xl font-bold mb-1 gradient-text">NodeMingle - Network Graph</h1>
             <p className="text-muted-foreground">
               Visual representation of the social network
               <HelpTooltip text="This graph uses a force-directed algorithm to display connections between users. Click on any node to select that user. Edge thickness represents interaction strength." />
@@ -108,12 +107,9 @@ const GraphPage = () => {
                     <h2 className="text-xl font-medium mb-4 gradient-text">Selected User</h2>
                     
                     <div className="flex items-center gap-3 mb-4">
-                      <Avatar className="h-12 w-12 border-2 border-social-light">
-                        <AvatarImage src={selectedUser.avatar} alt={selectedUser.name} />
-                        <AvatarFallback className="bg-social-primary text-white">
-                          {selectedUser.name.split(' ').map(n => n[0]).join('').toUpperCase()}
-                        </AvatarFallback>
-                      </Avatar>
+                      <div className="h-12 w-12 rounded-full bg-social-primary flex items-center justify-center text-white font-semibold">
+                        {selectedUser.name.split(' ').map(n => n[0]).join('').toUpperCase()}
+                      </div>
                       
                       <div>
                         <p className="font-medium">{selectedUser.name}</p>

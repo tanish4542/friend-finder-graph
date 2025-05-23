@@ -19,7 +19,7 @@ import NotFound from "./pages/NotFound";
 import Navbar from "./components/Navbar";
 
 // Set title
-document.title = "SocialBFS - Social Network Friend Finder";
+document.title = "NodeMingle - Social Network Friend Finder";
 
 // Add pulse animation CSS
 const pulseStyle = document.createElement('style');

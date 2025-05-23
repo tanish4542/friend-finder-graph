@@ -2,7 +2,6 @@
 import { User } from '@/utils/bfs';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardFooter } from '@/components/ui/card';
-import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { 
   Tooltip,
@@ -10,7 +9,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
-import { UserPlus, X, Check, User as UserIcon } from 'lucide-react';
+import { UserPlus, X, Check } from 'lucide-react';
 import { useState } from 'react';
 import { useUser } from '@/context/UserContext';
 
@@ -62,7 +61,6 @@ const FriendCard = ({
     }
   };
 
-  // Generate user initials for avatar fallback
   const initials = user.name
     .split(' ')
     .map(n => n[0])
@@ -74,12 +72,9 @@ const FriendCard = ({
       <CardHeader className="pb-2">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3">
-            <Avatar className="h-10 w-10 border-2 border-social-light">
-              <AvatarImage src={user.avatar} alt={user.name} />
-              <AvatarFallback className="bg-social-primary text-white">
-                {initials}
-              </AvatarFallback>
-            </Avatar>
+            <div className="w-10 h-10 rounded-full bg-social-primary flex items-center justify-center text-white font-semibold">
+              {initials}
+            </div>
             <div>
               <h3 className="font-medium">{user.name}</h3>
               <p className="text-sm text-muted-foreground">@{user.username}</p>
@@ -103,29 +98,16 @@ const FriendCard = ({
             <p className="text-xs text-muted-foreground mb-1">
               {mutualFriends.length} mutual connection{mutualFriends.length > 1 ? 's' : ''}
             </p>
-            <div className="flex -space-x-2 overflow-hidden">
-              {mutualFriends.slice(0, 3).map((friend) => (
-                <TooltipProvider key={friend.id}>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Avatar className="h-6 w-6 border-2 border-background">
-                        <AvatarImage src={friend.avatar} alt={friend.name} />
-                        <AvatarFallback className="bg-social-tertiary text-white text-xs">
-                          {friend.name.charAt(0)}
-                        </AvatarFallback>
-                      </Avatar>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>{friend.name}</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
+            <div className="flex flex-wrap gap-1">
+              {mutualFriends.slice(0, 5).map((friend) => (
+                <Badge key={friend.id} variant="secondary" className="text-xs">
+                  {friend.name}
+                </Badge>
               ))}
-              
-              {mutualFriends.length > 3 && (
-                <div className="h-6 w-6 rounded-full bg-accent text-accent-foreground text-xs flex items-center justify-center border-2 border-background">
-                  +{mutualFriends.length - 3}
-                </div>
+              {mutualFriends.length > 5 && (
+                <Badge variant="secondary" className="text-xs">
+                  +{mutualFriends.length - 5} more
+                </Badge>
               )}
             </div>
           </div>

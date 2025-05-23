@@ -1,4 +1,3 @@
-
 import { useNavigate } from 'react-router-dom';
 import UserSearchInput from '@/components/UserSearchInput';
 import { User } from '@/utils/bfs';
@@ -42,7 +41,7 @@ const FindFriends = () => {
   return (
     <div className="container mx-auto py-10 px-4">
       <div className="max-w-4xl mx-auto">
-        <h1 className="text-3xl font-bold mb-2 gradient-text">Find Friends</h1>
+        <h1 className="text-3xl font-bold mb-2 gradient-text">NodeMingle - Find Friends</h1>
         <p className="text-muted-foreground mb-8">
           Search for a user to start exploring their network connections
         </p>
@@ -56,12 +55,9 @@ const FindFriends = () => {
                 
                 {currentUser && (
                   <div className="mt-6 p-4 bg-accent/30 rounded-lg flex items-center gap-3">
-                    <Avatar className="h-10 w-10 border-2 border-social-light">
-                      <AvatarImage src={currentUser.avatar} alt={currentUser.name} />
-                      <AvatarFallback className="bg-social-primary text-white">
-                        {initials}
-                      </AvatarFallback>
-                    </Avatar>
+                    <div className="h-10 w-10 rounded-full bg-social-primary flex items-center justify-center text-white font-semibold">
+                      {initials}
+                    </div>
                     <div>
                       <p className="font-medium">{currentUser.name}</p>
                       <p className="text-sm text-muted-foreground">@{currentUser.username}</p>

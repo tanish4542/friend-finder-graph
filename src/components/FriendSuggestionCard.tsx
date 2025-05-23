@@ -2,7 +2,6 @@
 import { User } from '@/utils/bfs';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { UserPlus, X, Star, Users } from 'lucide-react';
 
@@ -25,10 +24,6 @@ const FriendSuggestionCard = ({
   onAddFriend, 
   onIgnore 
 }: FriendCardProps) => {
-  const getInitials = (name: string) => {
-    return name.split(' ').map(n => n[0]).join('').toUpperCase();
-  };
-
   return (
     <Card className="glass-card overflow-hidden relative">
       {score > 15 && (
@@ -42,12 +37,9 @@ const FriendSuggestionCard = ({
       <CardContent className="p-0">
         <div className="p-4">
           <div className="flex items-center gap-3 mb-3">
-            <Avatar className="h-12 w-12 border-2 border-social-light">
-              <AvatarImage src={user.avatar} alt={user.name} />
-              <AvatarFallback className="bg-social-primary text-white">
-                {getInitials(user.name)}
-              </AvatarFallback>
-            </Avatar>
+            <div className="w-12 h-12 rounded-full bg-social-primary flex items-center justify-center text-white font-semibold text-lg">
+              {user.name.split(' ').map(n => n[0]).join('').toUpperCase()}
+            </div>
             <div>
               <p className="font-medium">{user.name}</p>
               <p className="text-sm text-muted-foreground">@{user.username}</p>

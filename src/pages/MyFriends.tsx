@@ -87,7 +87,7 @@ const MyFriends = () => {
       <div className="max-w-6xl mx-auto">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
           <div>
-            <h1 className="text-3xl font-bold mb-1 gradient-text">SocialBFS - My Friends</h1>
+            <h1 className="text-3xl font-bold mb-1 gradient-text">NodeMingle - My Friends</h1>
             <p className="text-muted-foreground">
               Direct connections (Level 1) 
               <HelpTooltip text="Level 1 connections are users directly connected to the selected user." />
@@ -103,12 +103,19 @@ const MyFriends = () => {
           <Card className="mb-6 glass-card">
             <CardContent className="pt-6">
               <h2 className="text-xl font-medium mb-2 gradient-text">Selected User</h2>
-              <p className="text-accent-foreground">
-                {currentUser.name} (@{currentUser.username})
-              </p>
-              <p className="text-sm text-muted-foreground mt-1">
-                {friends.length} direct connection{friends.length !== 1 ? 's' : ''}
-              </p>
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-social-primary flex items-center justify-center text-white font-semibold">
+                  {currentUser.name.split(' ').map(n => n[0]).join('').toUpperCase()}
+                </div>
+                <div>
+                  <p className="text-accent-foreground font-medium">
+                    {currentUser.name} (@{currentUser.username})
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    {friends.length} direct connection{friends.length !== 1 ? 's' : ''}
+                  </p>
+                </div>
+              </div>
             </CardContent>
           </Card>
         )}

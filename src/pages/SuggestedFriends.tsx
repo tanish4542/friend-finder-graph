@@ -155,7 +155,7 @@ const SuggestedFriends = () => {
       <div className="max-w-6xl mx-auto">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
           <div>
-            <h1 className="text-3xl font-bold mb-1 gradient-text">SocialBFS - Friend Finder</h1>
+            <h1 className="text-3xl font-bold mb-1 gradient-text">NodeMingle - Friend Finder</h1>
             <p className="text-muted-foreground">
               Smart friend recommendations using BFS algorithm
             </p>
