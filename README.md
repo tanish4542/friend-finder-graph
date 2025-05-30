@@ -46,7 +46,7 @@ Users can:
 ### 1. Clone the Repository
 
 bash
-git clone https://github.com/tanish4542/friend-finder.graph
+git clone https://github.com/tanish4542/friend-finder-graph
 cd SocialBFS
 
 npm install
