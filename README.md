@@ -1,48 +1,72 @@
-# Welcome to my SocialBFS project
+# SocialBFS – A BFS-Based Social Network Simulator
 
-**Use your preferred IDE**
+## 👤 Student Details
+- **Name:** Tanish Arora  
+- **USN:** 4NI23CI116  
+- **Course:** Discrete Mathematical Structures (DMS)  
+- **Project Title:** SocialBFS – Graph-Based Friend Recommendation System  
+- **Guide:** Savitha Sridharamurthy  
+- **Institution:** NIE, Mysuru  
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+---
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+## 📘 Project Description
 
-Follow these steps:
+**SocialBFS** is an educational web application that demonstrates how the Breadth-First Search (BFS) algorithm is used in real-world social networking platforms for friend recommendation and network exploration.
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+The project is built around core concepts of **Discrete Mathematical Structures (DMS)** including:
+- Graph Theory
+- Relations and Functions
+- Set Theory and Combinatorics
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+Users can:
+- Visualize a social network as a graph
+- Explore Level 1, 2, and 3+ connections
+- Receive friend suggestions based on mutual friends and interaction weights
+- Customize parameters like Alpha, Beta, and BFS depth
+- Understand algorithmic thinking through real-time traversal animations
 
-# Step 3: Install the necessary dependencies.
-npm i
+---
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+## ⚙️ Tech Stack
+
+- **Frontend:** React 18 + TypeScript  
+- **Styling:** Tailwind CSS + shadcn/ui  
+- **Graph Visualization:** D3.js  
+- **Data Fetching & Caching:** TanStack React Query  
+- **Build Tool:** Vite  
+- **Data Format:** Static JSON (mock data)
+
+---
+
+## 🚀 How to Run the Project
+
+> **Note:** Make sure you have **Node.js** and **npm** or **yarn** installed.
+
+### 1. Clone the Repository
+
+bash
+git clone https://github.com/tanish4542/friend-finder.graph
+cd SocialBFS
+
+npm install
+# or
+yarn install
+
 npm run dev
-```
+# or
+yarn dev
 
-**Edit a file directly in GitHub**
-
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
-
-**Use GitHub Codespaces**
-
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
-
-## What technologies are used for this project?
-
-This project is built with:
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
+#📂 Project Structure
+SocialBFS/
+│
+├── public/                # Static assets
+├── src/
+│   ├── components/        # UI Components
+│   ├── data/              # Mock JSON data
+│   ├── pages/             # Main pages
+│   ├── utils/             # BFS & scoring logic
+│   └── App.tsx            # Main entry point
+├── index.html
+├── package.json
+└── README.md
